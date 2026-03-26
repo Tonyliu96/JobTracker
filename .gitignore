@@ -1,0 +1,54 @@
+HELP.md
+target/
+.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+### VS Code ###
+.vscode/
+
+### MacOS ###
+.DS_Store
+
+# backend secrets
+src/main/resources/application.properties
+
+# frontend secrets
+jobtracker-frontend/.env
+jobtracker-frontend/.env.local
+
+# frontend build
+jobtracker-frontend/node_modules/
+jobtracker-frontend/dist/
+
+# spring boot build
+target/
+
+### Frontend build ###
+jobtracker-frontend/node_modules/
+jobtracker-frontend/dist/
