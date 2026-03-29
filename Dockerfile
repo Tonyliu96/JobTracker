@@ -11,7 +11,7 @@ COPY src ./src
 RUN MAVEN_OPTS="-Xmx256m" mvn clean package -DskipTests
 
 
-FROM eclipse-temurin:23-jre-jammy
+FROM eclipse-temurin:23-jre-alpine
 WORKDIR /app
 
 
