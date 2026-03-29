@@ -1,4 +1,20 @@
-FROM ubuntu:latest
-LABEL authors="tony"
+FROM maven:3.9.11-eclipse-temurin-23 AS build
 
-ENTRYPOINT ["top", "-b"]
+WORKDIR /app
+
+COPY pom.xml mvnw ./
+COPY .mvn .mvn
+RUN chmod +x mvnw
+
+COPY src src
+RUN ./mvnw clean package -DskipTests
+
+FROM eclipse-temurin:23-jre
+
+WORKDIR /app
+
+COPY --from=build /app/target/*.jar app.jar
+
+EXPOSE 8080
+
+ENTRYPOINT ["sh", "-c", "java -Dserver.port=${PORT:-8080} -jar /app/app.jar"]

@@ -48,7 +48,6 @@ jobtracker-frontend/dist/
 
 # spring boot build
 target/
-Dockerfile
 
 ### Frontend build ###
 jobtracker-frontend/node_modules/
