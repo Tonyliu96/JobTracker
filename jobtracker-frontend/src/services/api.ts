@@ -1,6 +1,17 @@
-export const API_BASE =
-  import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, "") ??
-  "http://localhost:8080/api";
+// export const API_BASE =
+//   import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, "") ??
+//   "http://localhost:8080/api";
+
+// export function buildApiUrl(path: string): string {
+//   const normalizedPath = path.startsWith("/") ? path : `/${path}`;
+//   return `${API_BASE}${normalizedPath}`;
+// }
+
+
+export const API_BASE = 
+  (import.meta.env.VITE_API_BASE_URL) 
+    ? import.meta.env.VITE_API_BASE_URL.replace(/\/$/, "") 
+    : "https://jobtracker-s6sx.onrender.com/api";
 
 export function buildApiUrl(path: string): string {
   const normalizedPath = path.startsWith("/") ? path : `/${path}`;
