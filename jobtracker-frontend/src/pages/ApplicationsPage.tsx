@@ -195,10 +195,10 @@ const ApplicationsPage: React.FC = () => {
     setEditingId(null);
   };
 
-  const payload = {
-    ...form,
-    source: form.source?.trim() || inferSourceFromUrl(form.jobUrl),
-  };
+  // const payload = {
+  //   ...form,
+  //   source: form.source?.trim() || inferSourceFromUrl(form.jobUrl),
+  // };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
