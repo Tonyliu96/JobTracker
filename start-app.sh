@@ -1,33 +1,48 @@
- #!/bin/bash
+#!/bin/bash
 
-# kill any process running on 8080 to avoid conflicts
-echo "🔍 Checking for any process running on port 8080..."
-# look for processes using port 8080 and kill them
-PID_8080=$(lsof -t -i:8080)
-if [ -n "$PID_8080" ]; then
-    echo "⚠️ Killing existing process $PID_8080 on port 8080..."
-    kill -9 $PID_8080
-    sleep 1
-fi
-# --------------------------
+# 1. get the project root directory (the directory where this script is located)
+PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$PROJECT_ROOT"
 
-# 1. setup environment and start backend
-cd /Users/tony/IDEAproject/jobtracker
-echo "🚀 Starting Spring Boot backend..."
+# 2. kill processes occupying ports 8080 and 5173
+echo "🔍 正在清理端口占用..."
+for port in 8080 5173; do
+    PID=$(lsof -t -i:$port)
+    if [ -n "$PID" ]; then
+        echo "⚠️ find the $port, $PID occupying, forcing close..."
+        kill -9 $PID
+    fi
+done
+
+# 3. setting JAVA_HOME for macOS (adjust if on Linux or Windows)
 export JAVA_HOME=$(/usr/libexec/java_home)
-# use mvnw to ensure correct Maven version is used
-./mvnw spring-boot:run &
 
+# 4. define cleanup function to kill all child processes on exit
+cleanup() {
+    echo -e "\n🛑 Waiting for all services to stop..."
+    # kill all child processes of this script
+    pkill -P $$ 
+    exit
+}
+
+# bind the cleanup function to SIGINT, SIGTERM, and EXIT signals
+trap cleanup SIGINT SIGTERM EXIT
+
+# 5. start the backend
+echo "🚀 Waiting for the backend to start..."
+./mvnw spring-boot:run &
 BACKEND_PID=$!
 
-# 2. wait for backend to start
-echo "⏳ Waiting for backend to start..."
+# 6. wait for the backend to start (adjust sleep time if needed)
+echo "⏳ Waiting for the backend to start..."
 sleep 8
 
-# 3. start frontend
-echo "💻 Starting frontend development server..."
-cd jobtracker-frontend
-npm run dev
-
-# 4. cleanup on exit
-trap "kill -9 $BACKEND_PID" EXIT
+# 7. start the frontend
+if [ -d "jobtracker-frontend" ]; then
+    echo "💻 Waiting for the frontend to start..."
+    cd jobtracker-frontend
+    npm run dev
+else
+    echo "❌ Cannot find jobtracker-frontend directory"
+    cleanup
+fi

@@ -6,6 +6,8 @@ import lombok.Data;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import org.hibernate.annotations.ColumnDefault;
+
 @Entity
 @Table(name = "applications")
 @Data
@@ -43,6 +45,20 @@ public class JobApplication {
 
     // 关联用户 ID (后续对接 Security)
     private Long userId;
+
+    private LocalDate followUpDate;
+
+    @Column(nullable = false)
+    @ColumnDefault("true")
+    private Boolean reminderEnabled = true;
+
+    @Column(nullable = true)
+    private LocalDate remindeAt;
+    
+    @Column(nullable = true)
+    private LocalDate lastNotifiedAt;       
+
+
 
 
 //    public String getCompanyName() {

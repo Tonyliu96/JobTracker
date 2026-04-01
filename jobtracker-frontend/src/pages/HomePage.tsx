@@ -32,31 +32,7 @@ const HomePage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedStatus, setSelectedStatus] = useState<ApplicationStatus | null>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    void (async () => {
-      try {
-        const data = await fetchApplications();
-        if (!cancelled) {
-          setApps(data);
-        }
-      } catch (e: unknown) {
-        if (!cancelled) {
-          setError(e instanceof Error ? e.message : "An unknown error occurred");
-        }
-      } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  
 
   const byStatus = useMemo(() => {
     const base: Record<ApplicationStatus, number> = {
@@ -102,6 +78,42 @@ const HomePage: React.FC = () => {
     ? APPLICATION_STATUS_LABELS[selectedStatus]
     : "All applications";
 
+    async function loadApplications() {
+      setLoading(true);
+      setError(null);
+
+      try {
+        const data = await fetchApplications();
+        setApps(data);
+      } catch (e: unknown) {
+        setError(e instanceof Error ? e.message : "An unknown error occurred");
+      } finally {
+        setLoading(false);
+      }
+    }
+  // async function loadFollowUps() {
+  //   setFollowUpLoading(true);
+  //   setFollowUpError(null);
+
+  //   try {
+  //     const data = await fetchDueFollowUps();
+  //     setDueFollowUps(data);
+  //   } catch (e: unknown) {
+  //     setFollowUpError(e instanceof Error ? e.message : "An unknown error occurred");
+  //   } finally {
+  //     setFollowUpLoading(false);
+  //   }
+  // }
+
+  useEffect(() => {
+    const initData = async () => {
+      await Promise.all([loadApplications()]);
+    };
+
+    void initData();
+  }, []);
+
+  
   return (
     <main className="max-w-6xl mx-auto px-4 py-6 space-y-6">
       <section className="relative overflow-hidden rounded-[28px] border border-slate-200 bg-[radial-gradient(circle_at_top_left,_rgba(56,189,248,0.2),_transparent_30%),linear-gradient(135deg,_#0f172a_0%,_#1e293b_52%,_#f8fafc_52%,_#ffffff_100%)] p-6 shadow-sm">
@@ -165,8 +177,7 @@ const HomePage: React.FC = () => {
           <button
             type="button"
             onClick={() => setSelectedStatus(null)}
-            className="inline-flex items-center rounded-full border border-slate-300 px-4 py-2 text-sm text-slate-600 transition hover:bg-slate-50"
-          >
+            className="inline-flex items-center rounded-full border border-slate-300 px-4 py-2 text-sm text-slate-600 transition hover:bg-slate-50">
             Clear filter
           </button>
         </div>
@@ -209,22 +220,16 @@ const HomePage: React.FC = () => {
                   onClick={() => setSelectedStatus(isActive ? null : status)}
                   className={`group overflow-hidden rounded-[24px] border p-4 text-left transition ${isActive
                     ? "border-slate-900 bg-slate-900 text-white shadow-lg"
-                    : "border-slate-200 bg-white hover:-translate-y-0.5 hover:shadow-sm"
-                    }`}
-                >
+                    : "border-slate-200 bg-white hover:-translate-y-0.5 hover:shadow-sm"}`}>
                   <div
                     className={`inline-flex rounded-full border bg-gradient-to-r px-3 py-1 text-[11px] font-medium ${isActive
                       ? "border-white/10 from-white/20 to-white/10 text-white"
-                      : statusAccentStyles[status]
-                      }`}
-                  >
+                      : statusAccentStyles[status]}`}>
                     {APPLICATION_STATUS_LABELS[status]}
                   </div>
                   <p className="mt-4 text-3xl font-semibold">{byStatus[status]}</p>
                   <p
-                    className={`mt-6 text-sm ${isActive ? "text-slate-200" : "text-slate-600"
-                      }`}
-                  >
+                    className={`mt-6 text-sm ${isActive ? "text-slate-200" : "text-slate-600"}`}>
                     {status === "APPLIED" && "Fresh submissions waiting for first response"}
                     {status === "INTERVIEW" && "Live conversations that need close tracking"}
                     {status === "OFFER" && "Positive outcomes ready for decision making"}
@@ -256,8 +261,7 @@ const HomePage: React.FC = () => {
             <ApplicationDetail
               key={selectedStatus ?? "all"}
               apps={filteredApps}
-              statusLabels={APPLICATION_STATUS_LABELS}
-            />
+              statusLabels={APPLICATION_STATUS_LABELS} />
 
           </section >
 

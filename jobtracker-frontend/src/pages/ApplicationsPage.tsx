@@ -17,6 +17,9 @@ const emptyPayload: JobApplicationPayload = {
   location: "",
   source: "",
   appliedDate: null,
+  followUpDate: null,
+  reminderEnabled: true,
+  remindeAt: null,
   notes: "",
 };
 
@@ -76,6 +79,14 @@ const ApplicationsPage: React.FC = () => {
   const [sourceFilter, setSourceFilter] = useState("ALL");
   const [sortField, setSortField] = useState<SortField>("appliedDate");
   const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
+  const reminderBadgeClasses: Record<string, string> = {
+  Off: "bg-slate-100 text-slate-700",
+  Completed: "bg-emerald-100 text-emerald-800",
+  Overdue: "bg-rose-100 text-rose-800",
+  "Due today": "bg-amber-100 text-amber-800",
+  Scheduled: "bg-sky-100 text-sky-800",
+  On: "bg-slate-100 text-slate-700",
+};
 
   const load = async () => {
     setLoading(true);
@@ -184,9 +195,14 @@ const ApplicationsPage: React.FC = () => {
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>,
   ) => {
     const { name, value } = e.target;
+    const nextValue =
+      e.target instanceof HTMLInputElement && e.target.type === "checkbox"
+        ? e.target.checked
+        : value;
+
     setForm((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: nextValue,
     }));
   };
 
@@ -210,6 +226,7 @@ const ApplicationsPage: React.FC = () => {
       const payload = {
         ...form,
         source: form.source?.trim() || inferSourceFromUrl(form.jobUrl),
+        followUpDate: form.reminderEnabled ? form.followUpDate ?? null : null,
       };
 
       if (editingId == null) {
@@ -238,6 +255,9 @@ const ApplicationsPage: React.FC = () => {
       source: app.source,
       status: app.status,
       appliedDate: app.appliedDate ?? null,
+      followUpDate: app.followUpDate ?? null,
+      reminderEnabled: app.reminderEnabled ?? true,
+      remindeAt: app.remindeAt ?? null,
       notes: app.notes ?? "",
     });
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -266,6 +286,23 @@ const ApplicationsPage: React.FC = () => {
     setSortField("appliedDate");
     setSortOrder("desc");
   };
+
+  function formatFollowUpDate(app: JobApplication): string {
+    return app.followUpDate
+      ? new Date(app.followUpDate).toLocaleDateString()
+      : "Not set";
+  }
+  function getReminderStatus(app: JobApplication): string {
+    if (app.reminderEnabled === false) return "Off";
+    if (app.remindeAt) return "Completed";
+    if (!app.followUpDate) return "On";
+
+    const today = new Date().toISOString().slice(0, 10);
+
+    if (app.followUpDate < today) return "Overdue";
+    if (app.followUpDate === today) return "Due today";
+    return "Scheduled";
+  }
 
   return (
     <main className="max-w-6xl mx-auto px-4 py-6 space-y-6">
@@ -466,8 +503,7 @@ const ApplicationsPage: React.FC = () => {
                 name="source"
                 value={form.source || ""}
                 onChange={handleChange}
-                className="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm"
-              />
+                className="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm" />
             </div>
             <div>
               <label htmlFor="application-status" className="block text-xs font-medium text-slate-700 mb-1">
@@ -498,6 +534,36 @@ const ApplicationsPage: React.FC = () => {
                 value={form.appliedDate || ""}
                 onChange={handleChange}
                 className="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm" />
+            </div>
+            <div>
+              <label htmlFor="followUpDate" className="block text-xs font-medium text-slate-700 mb-1">
+                Follow-up Date
+              </label>
+              <input
+                id="followUpDate"
+                type="date"
+                name="followUpDate"
+                value={form.followUpDate || ""}
+                onChange={handleChange}
+                disabled={form.reminderEnabled === false}
+                className="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400" />
+            </div>
+            <div className="md:col-span-2 rounded-[20px] border border-slate-200 bg-slate-50 px-4 py-3">
+              <label className="flex items-start justify-between gap-4">
+                <div>
+                  <p className="text-sm font-medium text-slate-900">Follow-up reminder</p>
+                  <p className="mt-1 text-xs leading-5 text-slate-500">
+                    Keep this role in the reminder queue until you mark it as followed up.
+                  </p>
+                </div>
+                <input
+                  id="reminderEnabled"
+                  name="reminderEnabled"
+                  type="checkbox"
+                  checked={form.reminderEnabled ?? true}
+                  onChange={handleChange}
+                  className="mt-1 h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-900" />
+              </label>
             </div>
             <div className="md:col-span-2">
               <label htmlFor="notes" className="block text-xs font-medium text-slate-700 mb-1">
@@ -575,8 +641,7 @@ const ApplicationsPage: React.FC = () => {
                   id="status-filter"
                   value={statusFilter}
                   onChange={(e) =>
-                    setStatusFilter(e.target.value as "ALL" | JobApplication["status"])
-                  }
+                    setStatusFilter(e.target.value as "ALL" | JobApplication["status"])}
                   className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm">
                   <option value="ALL">All statuses</option>
                   {APPLICATION_STATUSES.map((status) => (
@@ -652,6 +717,8 @@ const ApplicationsPage: React.FC = () => {
                     <th className="px-4 py-3 text-left">Role</th>
                     <th className="px-4 py-3 text-left">Stage</th>
                     <th className="px-4 py-3 text-left">Applied</th>
+                    <th className="px-4 py-3 text-left">Follow-up</th>
+                    <th className="px-4 py-3 text-left">Reminder</th>
                     <th className="px-4 py-3 text-right">Actions</th>
                   </tr>
                 </thead>
@@ -674,13 +741,21 @@ const ApplicationsPage: React.FC = () => {
                       </td>
                       <td className="px-4 py-4">
                         <span
-                          className={`inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-medium ${statusBadgeClasses[app.status]
-                            }`}>
+                          className={`inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-medium ${statusBadgeClasses[app.status]}`}>
                           {APPLICATION_STATUS_LABELS[app.status]}
                         </span>
                       </td>
                       <td className="px-4 py-4 text-slate-600">
                         {new Date(app.appliedDate || app.createdAt).toLocaleDateString()}
+                      </td>
+                      <td className="px-4 py-4 text-slate-600">
+                        {formatFollowUpDate(app)}
+                      </td>
+                      <td className="px-4 py-4">
+                        <span
+                          className={`inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-medium ${reminderBadgeClasses[getReminderStatus(app)]}`}>
+                          {getReminderStatus(app)}
+                        </span>
                       </td>
                       <td className="px-4 py-4 text-right">
                         <div className="inline-flex items-center gap-2">

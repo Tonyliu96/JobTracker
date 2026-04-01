@@ -42,6 +42,10 @@ export interface JobApplication {
   notes?: string | null;
   createdAt: string;
   updatedAt: string;
+  followUpDate?: string | null;
+  reminderEnabled?: boolean;
+  remindeAt?: string | null;
+  lastNotifiedAt?: string | null;
 }
 
 export interface JobApplicationPayload {
@@ -53,6 +57,9 @@ export interface JobApplicationPayload {
   status?: ApplicationStatus;
   appliedDate?: string | null;
   notes?: string | null;
+  followUpDate?: string | null;
+  reminderEnabled?: boolean;
+  remindeAt?: string | null;
 }
 
 function authHeaders() {
@@ -129,3 +136,16 @@ export async function deleteApplication(id: number): Promise<void> {
     throw new Error((data as any).error || "Failed to delete application");
   }
 }
+
+export async function fetchDueFollowUps(): Promise<JobApplication[]> {
+  const res = await fetch(buildApiUrl("/applications/follow-ups/due"), {
+    headers: authHeaders(),
+  });
+  if (!res.ok) {
+    if (handleUnauthorized(res.status)) {
+      throw new Error("Unauthorized");
+    }
+    throw new Error("Failed to load due follow-ups");
+  }
+  return (await res.json()) as JobApplication[];
+} 

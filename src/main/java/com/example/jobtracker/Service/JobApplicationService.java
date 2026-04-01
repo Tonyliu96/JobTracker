@@ -38,9 +38,11 @@ public class JobApplicationService {
     @Transactional
     public JobApplicationResponse create(JobApplicationRequest request, Long userId) {
         var nowDate = java.time.LocalDate.now();
-        if (request.getCreatedDate() != null && request.getCreatedDate().isAfter(nowDate)) {
-            throw new IllegalArgumentException("Created date cannot be in the future");
-        }
+        // if (request.getCreatedDate() != null && request.getCreatedDate().isAfter(nowDate)) {
+        //     throw new IllegalArgumentException("Created date cannot be in the future");
+        // }
+
+        boolean reminderEnabled = request.getReminderEnabled() == null || request.getReminderEnabled();
 
         JobApplication app = new JobApplication();
         app.setUserId(userId);
@@ -49,7 +51,8 @@ public class JobApplicationService {
         app.setJoburl(request.getJobUrl());
         app.setLocation(request.getLocation());
         app.setSource(request.getSource());
-        app.setStatus(request.getStatus() != null ? request.getStatus() : com.example.jobtracker.Entity.ApplicationStatus.APPLIED);
+        app.setStatus(request.getStatus() != null ? request.getStatus()
+                : com.example.jobtracker.Entity.ApplicationStatus.APPLIED);
 
         LocalDate appliedDate = request.getAppliedDate() != null ? request.getAppliedDate() : nowDate;
         app.setAppliedDate(appliedDate);
@@ -57,6 +60,19 @@ public class JobApplicationService {
         app.setCreatedAt(LocalDateTime.now());
         app.setNotes(request.getNotes());
         app.setUpdatedAt(LocalDateTime.now());
+
+        if (request.getFollowUpDate() != null) {
+            app.setFollowUpDate(request.getFollowUpDate());
+        } else if (reminderEnabled && request.getFollowUpDate() == null) {
+            app.setFollowUpDate(appliedDate.plusDays(7));
+        }
+
+        
+
+        app.setRemindeAt(null);
+        app.setReminderEnabled(reminderEnabled);
+        app.setLastNotifiedAt(null);
+
         return JobApplicationResponse.fromEntity(applicationRepository.save(app));
     }
 
@@ -64,18 +80,44 @@ public class JobApplicationService {
     public JobApplicationResponse update(Long id, JobApplicationRequest request, Long userId) {
         JobApplication app = applicationRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Application not found: " + id));
+
         if (!app.getUserId().equals(userId)) {
             throw new ResourceNotFoundException("Application not found: " + id);
         }
-        if (request.getCompanyName() != null) app.setCompanyName(request.getCompanyName());
-        if (request.getJobTitle() != null) app.setJobTitle(request.getJobTitle());
-        if (request.getJobUrl() != null) app.setJoburl(request.getJobUrl());
-        if (request.getLocation() != null) app.setLocation(request.getLocation());
-        if (request.getSource() != null) app.setSource(request.getSource());
-        if (request.getStatus() != null) app.setStatus(request.getStatus());
-        if (request.getAppliedDate() != null) app.setAppliedDate(request.getAppliedDate());
-        if (request.getNotes() != null) app.setNotes(request.getNotes());
+        if (request.getCompanyName() != null)
+            app.setCompanyName(request.getCompanyName());
+        if (request.getJobTitle() != null)
+            app.setJobTitle(request.getJobTitle());
+        if (request.getJobUrl() != null)
+            app.setJoburl(request.getJobUrl());
+        if (request.getLocation() != null)
+            app.setLocation(request.getLocation());
+        if (request.getSource() != null)
+            app.setSource(request.getSource());
+        if (request.getStatus() != null)
+            app.setStatus(request.getStatus());
+        if (request.getAppliedDate() != null)
+            app.setAppliedDate(request.getAppliedDate());
+        if (request.getNotes() != null)
+            app.setNotes(request.getNotes());
         app.setUpdatedAt(LocalDateTime.now());
+        if (request.getReminderEnabled() != null) {
+            app.setReminderEnabled(request.getReminderEnabled());
+        }
+
+        if (request.getFollowUpDate() != null) {
+            app.setFollowUpDate(request.getFollowUpDate());
+        }
+
+        if(request.getRemindeAt() != null) {
+            app.setRemindeAt(request.getRemindeAt());
+        }
+
+
+        if (app.getStatus() == com.example.jobtracker.Entity.ApplicationStatus.OFFER || app.getStatus() == com.example.jobtracker.Entity.ApplicationStatus.REJECTED || app.getStatus() == com.example.jobtracker.Entity.ApplicationStatus.WITHDRAWN) {
+            app.setReminderEnabled(false);
+        }
+
         return JobApplicationResponse.fromEntity(applicationRepository.save(app));
     }
 
@@ -87,5 +129,13 @@ public class JobApplicationService {
             throw new ResourceNotFoundException("Application not found: " + id);
         }
         applicationRepository.delete(app);
+    }
+
+    public List<JobApplicationResponse> getDueFollowUps(Long userId) {
+        
+        LocalDate today = LocalDate.now();
+        return applicationRepository.findDueFollowUpsByUserId(userId, today).stream()
+                .map(JobApplicationResponse::fromEntity)
+                .collect(Collectors.toList());
     }
 }

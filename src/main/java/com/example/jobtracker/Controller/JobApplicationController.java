@@ -36,8 +36,7 @@ public class JobApplicationController {
     @PostMapping
     public ResponseEntity<JobApplicationResponse> create(
             @Valid @RequestBody JobApplicationRequest request,
-            Authentication auth
-    ) {
+            Authentication auth) {
         return ResponseEntity.ok(jobApplicationService.create(request, currentUserId(auth)));
     }
 
@@ -45,8 +44,7 @@ public class JobApplicationController {
     public ResponseEntity<JobApplicationResponse> update(
             @PathVariable Long id,
             @RequestBody JobApplicationRequest request,
-            Authentication auth
-    ) {
+            Authentication auth) {
         return ResponseEntity.ok(jobApplicationService.update(id, request, currentUserId(auth)));
     }
 
@@ -55,4 +53,10 @@ public class JobApplicationController {
         jobApplicationService.delete(id, currentUserId(auth));
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/follow-ups/due")
+    public List<JobApplicationResponse> getDueFollowUps(Authentication auth) {
+        return jobApplicationService.getDueFollowUps(currentUserId(auth));
+    }
+
 }

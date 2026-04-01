@@ -21,6 +21,10 @@ public class JobApplicationResponse {
     private String notes;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private LocalDate followUpDate;
+    private Boolean reminderEnabled;
+    private LocalDate remindeAt;
+    private LocalDate lastNotifiedAt;
 
     public static JobApplicationResponse fromEntity(JobApplication app) {
         JobApplicationResponse dto = new JobApplicationResponse();
@@ -35,6 +39,10 @@ public class JobApplicationResponse {
         dto.setNotes(app.getNotes());
         dto.setCreatedAt(app.getCreatedAt());
         dto.setUpdatedAt(app.getUpdatedAt());
+        dto.setFollowUpDate(app.getFollowUpDate());
+        dto.setReminderEnabled(app.getReminderEnabled());
+        dto.setRemindeAt(app.getRemindeAt());
+        dto.setLastNotifiedAt(app.getLastNotifiedAt());
         return dto;
     }
 }

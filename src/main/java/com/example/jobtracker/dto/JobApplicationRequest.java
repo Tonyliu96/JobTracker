@@ -21,11 +21,18 @@ public class JobApplicationRequest {
     private String source;
     private ApplicationStatus status;
 
-    @PastOrPresent(message = "Applied date cannot be in the future")
     private LocalDate appliedDate;
 
-    @PastOrPresent(message = "Created date cannot be in the future")
-    private LocalDate createdDate;
+    // private LocalDate createdDate;
 
     private String notes;
+
+    private LocalDate followUpDate;
+
+    private Boolean reminderEnabled;
+    
+    private LocalDate remindeAt;
+
+    // private LocalDate lastNotifiedAt;
+
 }
