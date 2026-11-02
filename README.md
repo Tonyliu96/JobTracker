@@ -1,22 +1,46 @@
 # JobTracker
 
-JobTracker is a full-stack job application tracker built with Spring Boot and React.
-It helps users capture applications, monitor pipeline health, and review progress through a cleaner dashboard workflow.
+JobTracker is a full-stack job application tracker for recording applications, monitoring pipeline progress, and receiving follow-up reminders.
+
+<!-- Badge placeholders: add verified CI, deployment, or coverage badges here. -->
+
+## Table of Contents
+
+- [Features](#features)
+- [Architecture](#architecture)
+- [Tech Stack](#tech-stack)
+- [Project Structure](#project-structure)
+- [API Overview](#api-overview)
+- [Screenshots](#screenshots)
+- [Local Development](#local-development)
+- [Deployment](#deployment)
+- [Database Migrations](#database-migrations)
+- [Sensitive Information Rules](#sensitive-information-rules)
+- [Testing](#testing)
+- [Troubleshooting](#troubleshooting)
+- [Planned Improvements](#planned-improvements)
+- [Author](#author)
+- [License](#license)
 
 ## Features
 
 ### Authentication
 
-- Email registration and login
-- Google OAuth login
-- Password change for authenticated users
+- Email registration and password login
+- Google login using a Google ID token
+- JWT-based authenticated sessions
+- Password change for password-based accounts
+- Profile view with the configured authentication provider
 
 ### Application Tracking
 
-- Create, edit, and delete applications
-- Track application progress across multiple stages
-- Store source, location, notes, and job links
-- Review applications from dashboard and list views
+- Create, edit, and delete job applications
+- Track applications through multiple stages
+- Store company, role, job URL, location, source, notes, and dates
+- Configure follow-up dates and reminder settings
+- Mark an application as followed up
+- View applications in Table or Board mode
+- Responsive application management layout
 
 Supported statuses:
 
@@ -30,42 +54,49 @@ REJECTED
 WITHDRAWN
 ```
 
-Status meanings:
+### Reminders and Notifications
 
-- `SAVED`: Role saved for later
-- `APPLIED`: Submitted and waiting for first response
-- `OA`: Online assessment stage
-- `INTERVIEW`: Interview process in progress
-- `OFFER`: Offer received
-- `REJECTED`: Application closed with rejection
-- `WITHDRAWN`: Application withdrawn by the user
+- Scheduled follow-up reminders
+- In-app notifications for due follow-ups
+- Unread notification count in the navigation bar
+- Mark individual notifications as read
+- Daily reminder processing in the configured timezone
 
 ### Dashboard
 
-- Focus view for the current pipeline slice
-- Pipeline snapshot cards for key statuses
-- Recent application detail view
-- Submission trend chart
-- Source analysis
-- Lightweight insights panel
+The dashboard currently includes:
 
-## Screenshots
+- Pipeline metric cards
+- Application submission trend chart
+- Application source analysis
+- Insights panel
+- Recent application detail panel
 
-### Login
+### UI and Accessibility
 
-![Login screenshot](./screenshots/LoginPage.png)
+- Light and dark themes
+- Responsive layouts for desktop, tablet, and mobile screens
+- Semantic color tokens for theme-aware surfaces, borders, text, and primary actions
 
-### Dashboard
+## Architecture
 
-![Dashboard screenshot](./screenshots/HomePage.png)
+```text
+Browser
+  |
+  v
+Vercel (React + Vite frontend)
+  |
+  | HTTPS REST API requests with Bearer JWT
+  v
+Render (Spring Boot backend)
+  |
+  v
+Neon (PostgreSQL database)
+```
 
-### Applications
+For password authentication, the browser sends credentials to the Spring Boot API. The backend validates the credentials and returns a JWT. The frontend stores the token locally and sends it in the `Authorization: Bearer <token>` header for protected requests.
 
-![Applications screenshot](./screenshots/ApplicationsPage.png)
-
-### Profile
-
-![Profile screenshot](./screenshots/ProfilePage.png)
+For Google login, the Google Identity Services button runs in the browser and returns a Google ID token. The frontend sends that token to `POST /api/auth/google`. The backend verifies the token against the configured Google client ID, creates or finds the user, and returns the application's JWT.
 
 ## Tech Stack
 
@@ -75,31 +106,106 @@ Status meanings:
 - TypeScript
 - Vite
 - Tailwind CSS
+- Recharts
+- dnd-kit
+- Vitest
 
 ### Backend
 
 - Spring Boot
 - Spring Security
+- Spring Data JPA and Hibernate
+- Flyway
 - PostgreSQL
+- JWT
+- Bucket4j
 - REST API architecture
+
+### Deployment and Infrastructure
+
+- Neon PostgreSQL
+- Render Web Service
+- Vercel
 
 ## Project Structure
 
 ```text
-jobtracker
-├── src
-│   └── main/java
-├── jobtracker-frontend
-│   └── src
-├── screenshots
-├── start-app.sh
+jobtracker/
+├── src/main/java/                   # Spring Boot application code
+├── src/main/resources/db/migration/ # Flyway migrations
+├── jobtracker-frontend/src/         # React application
+├── screenshots/                     # UI screenshots
 ├── Dockerfile
-└── pom.xml
+├── start-app.sh
+├── pom.xml
+└── README.md
 ```
 
-## Quick Start
+## API Overview
 
-Run backend and frontend together:
+All API paths are prefixed with `/api`. Protected endpoints require a valid Bearer JWT.
+
+### Authentication
+
+| Method | Path | Description |
+|---|---|---|
+| `POST` | `/api/auth/register` | Register with email and password. |
+| `POST` | `/api/auth/login` | Log in with email and password. |
+| `POST` | `/api/auth/google` | Log in with a Google ID token. |
+| `GET` | `/api/auth/me` | Return the authenticated user's profile. |
+| `POST` | `/api/auth/change-password` | Change the authenticated user's password. |
+
+### Applications
+
+| Method | Path | Description |
+|---|---|---|
+| `GET` | `/api/applications` | List applications for the authenticated user. |
+| `GET` | `/api/applications/{id}` | Get one application owned by the authenticated user. |
+| `POST` | `/api/applications` | Create an application. |
+| `PATCH` | `/api/applications/{id}` | Update an application. |
+| `DELETE` | `/api/applications/{id}` | Delete an application. |
+| `GET` | `/api/applications/follow-ups/due` | List applications due for follow-up. |
+| `POST` | `/api/applications/{id}/follow-up-done` | Mark an application's follow-up as completed. |
+
+### Notifications
+
+| Method | Path | Description |
+|---|---|---|
+| `GET` | `/api/notifications` | List notifications for the authenticated user. |
+| `GET` | `/api/notifications/unread-count` | Return the authenticated user's unread notification count. |
+| `PATCH` | `/api/notifications/{id}/read` | Mark a notification as read. |
+
+## Screenshots
+
+> TODO: update screenshots. Capture each page in both light and dark themes.
+
+Pages to recapture:
+
+- Login: light and dark
+- Dashboard: light and dark
+- Applications: light and dark
+- Profile: light and dark
+
+### Login
+
+![Login screenshot](./screenshots/LoginPage.png)
+
+### Dashboard
+
+![Dashboard screenshot](./screenshots/HomePage01.png)
+![](./screenshots/HomePage02.png)
+
+### Applications
+
+![Applications screenshot](./screenshots/ApplicationsPage.png)
+
+### Profile
+
+![Profile screenshot](./screenshots/ProfilePage.png)
+
+## Local Development
+
+### Run Both Applications
 
 ```bash
 chmod +x start-app.sh
@@ -111,33 +217,16 @@ Default local URLs:
 - Backend: `http://localhost:8080`
 - Frontend: `http://localhost:5173`
 
-## Local Setup
-
 ### Backend
 
-Copy the tracked example and fill in local values:
-
-```text
-cp src/main/resources/application-example.properties src/main/resources/application.properties
-```
-
-The example uses environment variable placeholders:
-
-```properties
-spring.datasource.url=${DB_URL}
-spring.datasource.username=${DB_USERNAME}
-spring.datasource.password=${DB_PASSWORD}
-jwt.secret=${JWT_SECRET}
-google.client-id=${GOOGLE_CLIENT_ID}
-spring.flyway.baseline-on-migrate=true
-spring.flyway.baseline-version=0
-```
-
-Run:
+The tracked example configuration can be copied for local development:
 
 ```bash
+cp src/main/resources/application-example.properties src/main/resources/application.properties
 ./mvnw spring-boot:run
 ```
+
+Use a PostgreSQL connection, a JWT secret of at least 32 characters, and the Google client ID used by the frontend. The example file is a template only and must not contain real credentials.
 
 ### Frontend
 
@@ -148,95 +237,194 @@ cp .env.example .env
 npm run dev
 ```
 
-Frontend environment variables:
+Frontend variables:
 
 ```env
 VITE_API_BASE_URL=http://localhost:8080/api
-VITE_GOOGLE_CLIENT_ID=
+VITE_GOOGLE_CLIENT_ID=your-google-client-id
 ```
 
-Notes:
+`VITE_API_BASE_URL` selects the backend API. `VITE_GOOGLE_CLIENT_ID` must match the Google OAuth client configured for the backend.
 
-- `VITE_API_BASE_URL` controls which backend API the frontend talks to
-- `VITE_GOOGLE_CLIENT_ID` should match the Google OAuth client configured for the backend
-- Frontend routes include `/login`, `/dashboard`, `/applications`, and `/profile`
+## Deployment
 
-## Sensitive information rules
+Deploy in this order: Neon, Render, then Vercel.
 
-Never commit `src/main/resources/application.properties`, `application-*.properties` other than `application-example.properties`, `.env` files other than `.env.example`, `*.pem`, or `*.key`. Build output, logs, `node_modules`, `target`, `dist`, coverage reports, IDE files, and OS metadata are also ignored. Example files must contain placeholders only, such as `your-db-host` or `change-me`.
+### 1. Neon
 
-Flyway is configured with `spring.flyway.baseline-on-migrate=true` and `spring.flyway.baseline-version=0` in the example configuration. Verify the intended baseline before deploying to a new database.
+1. Create or select the PostgreSQL project and its active database branch.
+2. Copy the pooled or direct PostgreSQL connection details required by the backend.
+3. Include `sslmode=require` in the JDBC URL.
+4. For a new empty database, do not enable Flyway baseline mode. Flyway should run `V1__baseline.sql` normally.
+5. For an existing database that already has `users`, `applications`, and `notifications` but does not have `flyway_schema_history`, use baseline mode with version `1` so the existing schema is treated as equivalent to `V1` and later migrations can run.
 
-### Render backend variables
+### 2. Render Backend
 
-- `SPRING_DATASOURCE_URL`: private Neon PostgreSQL JDBC URL, including `sslmode=require`
-- `SPRING_DATASOURCE_USERNAME`: Neon database username
-- `SPRING_DATASOURCE_PASSWORD`: Neon database password
-- `SPRING_JPA_HIBERNATE_DDL_AUTO`: use `validate` with Flyway
-- `SPRING_FLYWAY_BASELINE_ON_MIGRATE`: use `true` when the baseline strategy is intended
-- `SPRING_FLYWAY_BASELINE_VERSION`: use `0` for this project baseline
-- `JWT_SECRET`: strong private signing secret, at least 32 characters
-- `GOOGLE_CLIENT_ID`: Google OAuth client ID used by the backend
-- `FRONTEND_ORIGIN`: deployed Vercel frontend origin
-- `PORT`: Render-provided port when applicable
-- `NOTIFICATIONS_CRON`: notification scheduler expression
-- `NOTIFICATIONS_ZONE`: scheduler timezone, for example `Australia/Sydney`
+Create or reuse the existing Docker Web Service and deploy the `main` branch. Configure these variables:
 
-### Vercel frontend variables
+| Name | Example | Description |
+|---|---|---|
+| `SPRING_DATASOURCE_URL` | `jdbc:postgresql://your-db-host/neondb?sslmode=require` | Neon JDBC connection URL. |
+| `SPRING_DATASOURCE_USERNAME` | `your-db-user` | Neon database username. |
+| `SPRING_DATASOURCE_PASSWORD` | `change-me` | Neon database password. |
+| `SPRING_JPA_HIBERNATE_DDL_AUTO` | `validate` | Validate schema without changing it. |
+| `SPRING_FLYWAY_ENABLED` | `true` | Enable Flyway migration processing. |
+| `SPRING_FLYWAY_BASELINE_ON_MIGRATE` | `false` for a new database; `true` for an existing legacy schema | Baseline only when the existing database needs it. |
+| `SPRING_FLYWAY_BASELINE_VERSION` | `1` | Required baseline version for the existing legacy schema. |
+| `JWT_SECRET` | `change-me-to-a-32-character-secret` | Private JWT signing secret, at least 32 characters. |
+| `GOOGLE_CLIENT_ID` | `your-google-client-id.apps.googleusercontent.com` | Google OAuth client ID verified by the backend. |
+| `FRONTEND_ORIGIN` | `https://your-app.vercel.app` | Allowed browser origin. No trailing slash. Multiple origins are comma-separated. |
+| `NOTIFICATIONS_CRON` | `0 0 9 * * *` | Daily notification schedule. |
+| `NOTIFICATIONS_ZONE` | `Australia/Sydney` | Scheduler timezone. |
+| `PORT` | Render-provided | Do not normally set manually; Render supplies the service port. |
 
-- `VITE_API_BASE_URL`: deployed Render API base URL, including `/api`
-- `VITE_GOOGLE_CLIENT_ID`: Google OAuth client ID for the browser
+`FRONTEND_ORIGIN` must include the scheme, must not have a trailing slash, and may contain multiple comma-separated origins:
 
-Variables beginning with `VITE_` are bundled into browser JavaScript. Do not put database passwords, JWT secrets, Google client secrets, or any other private credential in them.
+```text
+https://your-app.vercel.app,http://localhost:5173
+```
 
-### Enable the local pre-commit check
+After saving environment variables, deploy the latest `main` commit. The service must reach `Live` before testing the frontend.
 
-The repository includes a dependency-free hook that blocks common sensitive files and values:
+### 3. Vercel Frontend
+
+Configure these project variables:
+
+| Name | Example | Description |
+|---|---|---|
+| `VITE_API_BASE_URL` | `https://your-render-service.onrender.com/api` | Render backend API base URL, including `/api`. |
+| `VITE_GOOGLE_CLIENT_ID` | `your-google-client-id.apps.googleusercontent.com` | Google client ID used by the browser button. |
+
+Set the Google Cloud Console OAuth client's **Authorized JavaScript origins** to include the deployed frontend origin and local development origin when needed:
+
+```text
+https://your-app.vercel.app
+http://localhost:5173
+```
+
+The current Google button flow does not require a redirect URI. Variables beginning with `VITE_` are bundled into the frontend at build time. They must not contain passwords, JWT secrets, database credentials, or other private values. Changes to `VITE_` variables require a new Vercel deployment.
+
+## Database Migrations
+
+Migrations are stored in:
+
+```text
+src/main/resources/db/migration/
+```
+
+Use the naming format:
+
+```text
+V<version>__<description>.sql
+```
+
+Examples in this repository:
+
+```text
+V1__baseline.sql
+V2__add_application_indexes_and_foreign_keys.sql
+V3__rename_application_columns.sql
+V4__add_auth_provider.sql
+```
+
+Migration versions must be unique and must not be edited after they have successfully run in a shared database. Add a new version for a new change. Test migrations against a database that represents the target deployment state before releasing them.
+
+For a new empty database, leave baseline mode disabled so Flyway creates the schema from `V1`. For an existing legacy database with the application tables already present and no Flyway history table, configure `baseline-on-migrate=true` and `baseline-version=1`. This records the existing schema at `V1` and allows `V2`, `V3`, and later migrations to run.
+
+Rollback SQL and migration recovery notes belong under:
+
+```text
+docs/
+```
+
+Rollback is not automatic. Review the migration and its rollback SQL before applying any recovery operation to a shared database.
+
+## Sensitive Information Rules
+
+Never commit:
+
+- `src/main/resources/application.properties`
+- Environment files containing real values
+- Private key files such as `*.pem` and `*.key`
+- Database passwords, JWT secrets, Google client secrets, or production connection URLs
+
+Example files must contain placeholders only. The backend and frontend environment variables are intentionally separate: Render receives backend and database configuration, while Vercel receives only browser-safe `VITE_` values.
+
+Variables beginning with `VITE_` are compiled into browser JavaScript and are not secret storage. Never put a database password, JWT secret, or private OAuth credential in them.
+
+The repository includes a dependency-free pre-commit check. Enable it for this repository with:
 
 ```bash
 git config core.hooksPath .githooks
 ```
 
-This changes only the current repository. It does not modify global Git configuration.
+This changes only the local repository configuration and does not change the global Git configuration.
 
 ## Testing
 
-Backend:
+Backend tests:
 
 ```bash
 ./mvnw test
 ```
 
-Frontend:
+Frontend lint and build:
+
+```bash
+cd jobtracker-frontend
+npm run lint
+npm run build
+```
+
+Frontend unit tests:
 
 ```bash
 cd jobtracker-frontend
 npm test
 ```
 
-## Example Use Cases
+## Troubleshooting
 
-- Organize ongoing job applications in one place
-- Track response progress across different stages
-- Review application activity trends
-- Compare which sources produce stronger outcomes
+### CORS preflight returns 403
+
+- Confirm the browser origin exactly matches `FRONTEND_ORIGIN`.
+- Use `https://` for the deployed Vercel origin.
+- Remove the trailing slash.
+- For local development, include `http://localhost:5173` as a separate comma-separated origin.
+- Redeploy Render after changing environment variables.
+- Confirm the backend is running the latest `main` commit and allows `OPTIONS` requests.
+
+### Google reports that the origin is not allowed for the client ID
+
+- Add the exact Vercel origin under Google Cloud Console → OAuth client → **Authorized JavaScript origins**.
+- Keep `http://localhost:5173` for local development if needed.
+- Confirm `VITE_GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_ID` refer to the same client.
+- Redeploy Vercel after changing the frontend variable.
+
+### The first Render request is slow
+
+The free Render instance may sleep when idle. The first request after sleep can take longer while the service starts. Wait for the service to become healthy before retrying.
+
+### Flyway migration fails
+
+- Verify the backend is connected to the intended Neon project, branch, database, and schema.
+- For a new empty database, do not baseline it; let `V1` create the schema.
+- For an existing schema without `flyway_schema_history`, use baseline version `1`, not `0`.
+- Check the migration filename, version order, and the first database error in the Render logs.
+- Do not mark a migration as successful manually or delete Flyway history without a database backup and a recovery plan.
+- If a migration was partially applied, inspect the actual columns and constraints in Neon before adding a new corrective migration.
 
 ## Planned Improvements
 
 - Resume parsing support
 - Automatic source detection from job URLs
-- Reminder and follow-up workflows
-- Cloud deployment support
+- Email notification delivery
+- Migration from local storage of JWTs to HttpOnly cookies
 
-## Author👨🏻‍💻
-# Environment variables
+## Author
 
-For local or Render deployments, configure `SPRING_DATASOURCE_URL`,
-`SPRING_DATASOURCE_USERNAME`, `SPRING_DATASOURCE_PASSWORD`, `JWT_SECRET`,
-`GOOGLE_CLIENT_ID`, `FRONTEND_ORIGIN`, `PORT`,
-`NOTIFICATIONS_CRON`, and `NOTIFICATIONS_ZONE`. The JDBC URL must use
-`jdbc:postgresql://...` and Neon connections should include `sslmode=require`.
+Author: `<add author name or profile link>`
 
-The backend runs with `./mvnw spring-boot:run`. The frontend runs from
-`jobtracker-frontend` with `npm run dev`. Windows users can use `mvnw.cmd
-spring-boot:run` and run the frontend command from PowerShell.
+## License
+
+License: `<add license name or repository license file>`
