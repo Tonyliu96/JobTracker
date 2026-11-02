@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo, useState } from "react";
-import type { ApplicationStatus, JobApplication } from "../services/applications";
+import React, { useMemo, useState } from "react";
+import type { ApplicationStatus, JobApplication } from "../../applications/api/applications";
 
 interface ApplicationDetailProps {
   apps: JobApplication[];
@@ -62,16 +62,12 @@ const ApplicationDetail: React.FC<ApplicationDetailProps> = ({
   }, [apps, sortField, sortOrder]);
 
   const totalPages = Math.max(1, Math.ceil(sortedApps.length / pageSize));
+  const activePage = Math.min(currentPage, totalPages);
 
   const paginatedApps = useMemo(() => {
-    const startIndex = (currentPage - 1) * pageSize;
+    const startIndex = (activePage - 1) * pageSize;
     return sortedApps.slice(startIndex, startIndex + pageSize);
-  }, [sortedApps, currentPage, pageSize]);
-
-  useEffect(() => {
-    setCurrentPage(1);
-    setSelected(null);
-  }, [apps, pageSize]);
+  }, [sortedApps, activePage, pageSize]);
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
@@ -83,8 +79,8 @@ const ApplicationDetail: React.FC<ApplicationDetailProps> = ({
     setSortOrder("desc");
   };
 
-  const visibleRangeStart = sortedApps.length === 0 ? 0 : (currentPage - 1) * pageSize + 1;
-  const visibleRangeEnd = Math.min(currentPage * pageSize, sortedApps.length);
+  const visibleRangeStart = sortedApps.length === 0 ? 0 : (activePage - 1) * pageSize + 1;
+  const visibleRangeEnd = Math.min(activePage * pageSize, sortedApps.length);
 
   return (
     <div className="space-y-5">
@@ -238,13 +234,13 @@ const ApplicationDetail: React.FC<ApplicationDetailProps> = ({
               {totalPages > 1 && (
                 <div className="flex flex-col gap-3 border-t border-slate-200 bg-slate-50 px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
                   <p className="text-sm text-slate-500">
-                    Page {currentPage} of {totalPages}
+                    Page {activePage} of {totalPages}
                   </p>
                   <div className="flex items-center gap-2">
                     <button
                       type="button"
                       onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                      disabled={currentPage === 1}
+                      disabled={activePage === 1}
                       className="rounded-full border border-slate-300 bg-white px-4 py-2 text-sm text-slate-700 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       Previous
@@ -256,7 +252,7 @@ const ApplicationDetail: React.FC<ApplicationDetailProps> = ({
                           key={page}
                           type="button"
                           onClick={() => setCurrentPage(page)}
-                          className={`h-9 w-9 rounded-full border text-sm ${currentPage === page
+                          className={`h-9 w-9 rounded-full border text-sm ${activePage === page
                               ? "border-slate-900 bg-slate-900 text-white"
                               : "border-slate-300 bg-white text-slate-700 hover:bg-slate-100"
                             }`}
@@ -268,7 +264,7 @@ const ApplicationDetail: React.FC<ApplicationDetailProps> = ({
                     <button
                       type="button"
                       onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-                      disabled={currentPage === totalPages}
+                      disabled={activePage === totalPages}
                       className="rounded-full border border-slate-300 bg-white px-4 py-2 text-sm text-slate-700 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       Next

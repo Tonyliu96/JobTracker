@@ -1,4 +1,4 @@
-import { buildApiUrl } from "./api";
+import { buildApiUrl } from "../../../lib/api";
 
 export interface AuthResponse {
   token: string;
@@ -19,8 +19,8 @@ export async function login(
   });
 
   if (!res.ok) {
-    const data = await res.json().catch(() => ({}));
-    throw new Error((data as any).error || "Login failed");
+    const data = (await res.json().catch(() => ({}))) as { error?: string };
+    throw new Error(data.error || "Login failed");
   }
 
   return (await res.json()) as AuthResponse;
@@ -36,8 +36,8 @@ export async function loginWithGoogle(idToken: string): Promise<AuthResponse> {
   });
 
   if (!res.ok) {
-    const data = await res.json().catch(() => ({}));
-    throw new Error((data as any).error || "Google login failed");
+    const data = (await res.json().catch(() => ({}))) as { error?: string };
+    throw new Error(data.error || "Google login failed");
   }
 
   return (await res.json()) as AuthResponse;
@@ -56,8 +56,8 @@ export async function register(
   });
 
   if (!res.ok) {
-    const data = await res.json().catch(() => ({}));
-    throw new Error((data as any).error || "Register failed");
+    const data = (await res.json().catch(() => ({}))) as { error?: string };
+    throw new Error(data.error || "Register failed");
   }
 
   return (await res.json()) as AuthResponse;

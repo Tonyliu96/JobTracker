@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { register, saveAuth } from "../services/auth";
+import { register, saveAuth } from "../api/auth";
 
 const RegisterPage: React.FC = () => {
   const navigate = useNavigate();

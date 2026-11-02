@@ -1,11 +1,11 @@
 import { NavLink, Navigate, Outlet, Route, Routes, useNavigate } from "react-router-dom";
-import ApplicationsPage from "./pages/ApplicationsPage";
-import HomePage from "./pages/HomePage";
-import LoginPage from "./pages/LoginPage";
-import ProfilePage from "./pages/ProfilePage";
-import RegisterPage from "./pages/RegisterPage";
-import { clearAuth, getEmail, getToken } from "./services/auth";
-import { fetchNotifications, markNotificationAsRead, fetchUnreadCount, type NotificationItem } from "./services/notification";
+import ApplicationsPage from "../features/applications/pages/ApplicationsPage";
+import HomePage from "../features/dashboard/pages/HomePage";
+import LoginPage from "../features/auth/pages/LoginPage";
+import ProfilePage from "../features/profile/pages/ProfilePage";
+import RegisterPage from "../features/auth/pages/RegisterPage";
+import { clearAuth, getEmail, getToken } from "../features/auth/api/auth";
+import { fetchNotifications, markNotificationAsRead, fetchUnreadCount, type NotificationItem } from "../features/notifications/api/notification";
 import { useEffect, useRef, useState } from "react";
 
 function ProtectedRoute() {

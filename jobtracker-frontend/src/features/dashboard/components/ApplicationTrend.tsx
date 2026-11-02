@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import type { JobApplication } from "../services/applications";
+import type { JobApplication } from "../../applications/api/applications";
 import {
   CartesianGrid,
   Line,

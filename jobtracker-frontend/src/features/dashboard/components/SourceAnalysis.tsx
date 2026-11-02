@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import type { JobApplication } from "../services/applications";
+import type { JobApplication } from "../../applications/api/applications";
 
 interface SourceAnalysisProps {
   apps: JobApplication[];

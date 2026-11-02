@@ -1,7 +1,7 @@
 
-import { getToken, handleUnauthorized } from "./auth";
+import { getToken, handleUnauthorized } from "../../auth/api/auth";
 
-import { buildApiUrl } from "./api";
+import { buildApiUrl } from "../../../lib/api";
 
 export interface NotificationItem {
   id: number;
@@ -75,4 +75,4 @@ export async function fetchUnreadCount(): Promise<number> {
 //     }
 //     throw new Error("Failed to delete notification");
 //   }
-// }   
+// }

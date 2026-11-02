@@ -7,8 +7,8 @@ import {
   fetchApplications,
   markFollowUpDone,
   updateApplication,
-} from "../services/applications";
-import type { JobApplication, JobApplicationPayload } from "../services/applications";
+} from "../api/applications";
+import type { JobApplication, JobApplicationPayload } from "../api/applications";
 
 const emptyPayload: JobApplicationPayload = {
   companyName: "",

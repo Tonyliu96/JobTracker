@@ -1,5 +1,5 @@
-import { getToken, handleUnauthorized } from "./auth";
-import { buildApiUrl } from "./api";
+import { getToken, handleUnauthorized } from "../../auth/api/auth";
+import { buildApiUrl } from "../../../lib/api";
 
 export type ApplicationStatus =
   | "SAVED"
@@ -98,8 +98,8 @@ export async function createApplication(
     if (handleUnauthorized(res.status)) {
       throw new Error("Unauthorized");
     }
-    const data = await res.json().catch(() => ({}));
-    throw new Error((data as any).error || "Failed to create application");
+    const data = (await res.json().catch(() => ({}))) as { error?: string };
+    throw new Error(data.error || "Failed to create application");
   }
   return (await res.json()) as JobApplication;
 }
@@ -117,8 +117,8 @@ export async function updateApplication(
     if (handleUnauthorized(res.status)) {
       throw new Error("Unauthorized");
     }
-    const data = await res.json().catch(() => ({}));
-    throw new Error((data as any).error || "Failed to update application");
+    const data = (await res.json().catch(() => ({}))) as { error?: string };
+    throw new Error(data.error || "Failed to update application");
   }
   return (await res.json()) as JobApplication;
 }
@@ -132,8 +132,8 @@ export async function deleteApplication(id: number): Promise<void> {
     if (handleUnauthorized(res.status)) {
       throw new Error("Unauthorized");
     }
-    const data = await res.json().catch(() => ({}));
-    throw new Error((data as any).error || "Failed to delete application");
+    const data = (await res.json().catch(() => ({}))) as { error?: string };
+    throw new Error(data.error || "Failed to delete application");
   }
 }
 

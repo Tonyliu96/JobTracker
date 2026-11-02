@@ -4,7 +4,7 @@ import {
   fetchApplications,
   type ApplicationStatus,
   type JobApplication,
-} from "../services/applications";
+} from "../../applications/api/applications";
 import ApplicationDetail from "../components/ApplicationDetail";
 import ApplicationTrend from "../components/ApplicationTrend";
 import InsightsPanel from "../components/InsightsPanel";

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { changePassword, getEmail } from "../services/auth";
+import { changePassword, getEmail } from "../../auth/api/auth";
 
 const ProfilePage: React.FC = () => {
   const [email, setEmail] = useState<string | null>(null);

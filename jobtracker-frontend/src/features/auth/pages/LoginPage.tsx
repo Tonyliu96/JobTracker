@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { GoogleLogin } from "@react-oauth/google";
 import { Link, useNavigate } from "react-router-dom";
-import { login, loginWithGoogle, saveAuth } from "../services/auth";
+import { login, loginWithGoogle, saveAuth } from "../api/auth";
 
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();

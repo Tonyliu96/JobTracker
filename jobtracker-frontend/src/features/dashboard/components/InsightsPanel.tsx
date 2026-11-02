@@ -1,5 +1,5 @@
-import React, { useMemo } from "react";
-import type { JobApplication } from "../services/applications";
+import React, { useMemo, useState } from "react";
+import type { JobApplication } from "../../applications/api/applications";
 
 interface InsightsPanelProps {
   apps: JobApplication[];
@@ -18,6 +18,7 @@ function classifyDirection(title: string) {
 }
 
 const InsightsPanel: React.FC<InsightsPanelProps> = ({ apps }) => {
+  const [today] = useState(() => Date.now());
   const insights = useMemo(() => {
     if (!apps.length) return [];
 
@@ -43,7 +44,7 @@ const InsightsPanel: React.FC<InsightsPanelProps> = ({ apps }) => {
 
     const last7Days = apps.filter((app) => {
       const date = new Date(app.appliedDate || app.createdAt);
-      return Date.now() - date.getTime() < 7 * 24 * 60 * 60 * 1000;
+      return today - date.getTime() < 7 * 24 * 60 * 60 * 1000;
     }).length;
 
     const result: Array<{ title: string; body: string }> = [];
@@ -77,7 +78,7 @@ const InsightsPanel: React.FC<InsightsPanelProps> = ({ apps }) => {
     }
 
     return result;
-  }, [apps]);
+  }, [apps, today]);
 
   return (
     <section className="overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-sm">

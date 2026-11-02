@@ -1,11 +1,11 @@
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import ApplicationsPage from "../pages/ApplicationsPage";
-import { fetchApplications } from "../services/applications";
+import ApplicationsPage from "../features/applications/pages/ApplicationsPage";
+import { fetchApplications } from "../features/applications/api/applications";
 
-vi.mock("../services/applications", async () => {
-  const actual = await vi.importActual<typeof import("../services/applications")>(
-    "../services/applications",
+vi.mock("../features/applications/api/applications", async () => {
+  const actual = await vi.importActual<typeof import("../features/applications/api/applications")>(
+    "../features/applications/api/applications",
   );
 
   return {
