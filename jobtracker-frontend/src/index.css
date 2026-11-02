@@ -4,6 +4,36 @@
   --font-sans: "Inter", "Avenir Next", sans-serif;
   --radius-card: 0.75rem;
   --shadow-card: 0 12px 32px rgb(15 23 42 / 0.08);
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
+  --color-border: var(--border);
+  --color-foreground: var(--foreground);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+}
+
+:root {
+  --background: #f8fafc;
+  --surface: #ffffff;
+  --surface-muted: #f1f5f9;
+  --border: #dbe3ee;
+  --foreground: #172033;
+  --muted-foreground: #526079;
+  --primary: #0f766e;
+  --primary-foreground: #ffffff;
+}
+
+.dark {
+  --background: #0b1220;
+  --surface: #111b2d;
+  --surface-muted: #172338;
+  --border: #2b3a53;
+  --foreground: #f4f7fb;
+  --muted-foreground: #b6c1d3;
+  --primary: #2dd4bf;
+  --primary-foreground: #062a2a;
 }
 
 html {
@@ -15,6 +45,48 @@ body {
   min-width: 320px;
   min-height: 100vh;
   font-family: var(--font-sans);
-  background: #f8fafc;
-  color: #0f172a;
+  background: var(--background);
+  color: var(--foreground);
+}
+
+* {
+  border-color: var(--border);
+}
+
+button,
+input,
+select,
+textarea {
+  color: var(--foreground);
+}
+
+select option {
+  background: var(--surface);
+  color: var(--foreground);
+}
+
+/* Keep older dashboard/profile utility classes readable while those views are
+   migrated to the same semantic tokens as the application workspace. */
+.dark [class*="bg-white"] {
+  background-color: var(--surface) !important;
+}
+
+.dark [class*="bg-slate-50"],
+.dark [class*="bg-slate-100"] {
+  background-color: var(--surface-muted) !important;
+}
+
+.dark [class*="text-slate-900"],
+.dark [class*="text-slate-800"],
+.dark [class*="text-slate-700"] {
+  color: var(--foreground) !important;
+}
+
+.dark [class*="text-slate-600"],
+.dark [class*="text-slate-500"] {
+  color: var(--muted-foreground) !important;
+}
+
+.dark [class*="border-slate"] {
+  border-color: var(--border) !important;
 }
