@@ -115,19 +115,22 @@ Default local URLs:
 
 ### Backend
 
-Create:
+Copy the tracked example and fill in local values:
 
 ```text
-src/main/resources/application.properties
+cp src/main/resources/application-example.properties src/main/resources/application.properties
 ```
 
-Example:
+The example uses environment variable placeholders:
 
 ```properties
-spring.datasource.url=
-spring.datasource.username=
-spring.datasource.password=
-google.client-id=
+spring.datasource.url=${DB_URL}
+spring.datasource.username=${DB_USERNAME}
+spring.datasource.password=${DB_PASSWORD}
+jwt.secret=${JWT_SECRET}
+google.client-id=${GOOGLE_CLIENT_ID}
+spring.flyway.baseline-on-migrate=true
+spring.flyway.baseline-version=0
 ```
 
 Run:
@@ -157,6 +160,41 @@ Notes:
 - `VITE_API_BASE_URL` controls which backend API the frontend talks to
 - `VITE_GOOGLE_CLIENT_ID` should match the Google OAuth client configured for the backend
 - Frontend routes include `/login`, `/dashboard`, `/applications`, and `/profile`
+
+## Sensitive information rules
+
+Never commit `src/main/resources/application.properties`, `application-*.properties` other than `application-example.properties`, `.env` files other than `.env.example`, `*.pem`, or `*.key`. Build output, logs, `node_modules`, `target`, `dist`, coverage reports, IDE files, and OS metadata are also ignored. Example files must contain placeholders only, such as `your-db-host` or `change-me`.
+
+Flyway is configured with `spring.flyway.baseline-on-migrate=true` and `spring.flyway.baseline-version=0` in the example configuration. Verify the intended baseline before deploying to a new database.
+
+### Render backend variables
+
+- `DB_URL`: private Neon PostgreSQL JDBC URL, including `sslmode=require`
+- `DB_USERNAME`: Neon database username
+- `DB_PASSWORD`: Neon database password
+- `JWT_SECRET`: strong private signing secret, at least 32 characters
+- `GOOGLE_CLIENT_ID`: Google OAuth client ID used by the backend
+- `FRONTEND_ORIGIN`: deployed Vercel frontend origin
+- `PORT`: Render-provided port when applicable
+- `NOTIFICATIONS_CRON`: notification scheduler expression
+- `NOTIFICATIONS_ZONE`: scheduler timezone, for example `Australia/Sydney`
+
+### Vercel frontend variables
+
+- `VITE_API_BASE_URL`: deployed Render API base URL, including `/api`
+- `VITE_GOOGLE_CLIENT_ID`: Google OAuth client ID for the browser
+
+Variables beginning with `VITE_` are bundled into browser JavaScript. Do not put database passwords, JWT secrets, Google client secrets, or any other private credential in them.
+
+### Enable the local pre-commit check
+
+The repository includes a dependency-free hook that blocks common sensitive files and values:
+
+```bash
+git config core.hooksPath .githooks
+```
+
+This changes only the current repository. It does not modify global Git configuration.
 
 ## Testing
 

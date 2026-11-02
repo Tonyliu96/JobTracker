@@ -1,0 +1,21 @@
+#!/bin/sh
+set -eu
+
+files=$(git diff --cached --name-only --diff-filter=ACMR)
+if printf '%s\n' "$files" | grep -E '(^|/)(application\.properties|application-[^/]+\.properties|\.env($|\.)|[^/]+\.(pem|key))$' | grep -Ev '(^|/)(application-example\.properties|\.env\.example)$' >/dev/null 2>&1; then
+  echo "Commit blocked: staged sensitive configuration or key material detected."
+  echo "Use application-example.properties or .env.example for placeholders."
+  exit 1
+fi
+
+if git diff --cached --text | grep -E 'jdbc:postgresql://[^[:space:]$}]+' | grep -Ev '(your-db-host|\.\.\.|\$\{)' >/dev/null 2>&1; then
+  echo "Commit blocked: staged content contains a concrete PostgreSQL JDBC host."
+  exit 1
+fi
+
+if git diff --cached --text | grep -E 'JWT_SECRET[=:][[:space:]]*' | grep -Ev '(\$\{[^}]+\}|change-me|your-)' >/dev/null 2>&1; then
+  echo "Commit blocked: staged content contains a non-placeholder JWT_SECRET value."
+  exit 1
+fi
+
+exit 0
