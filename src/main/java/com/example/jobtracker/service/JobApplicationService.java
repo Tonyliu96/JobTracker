@@ -70,7 +70,7 @@ public class JobApplicationService {
 
         
 
-        app.setRemindeAt(null);
+        app.setRemindedAt(null);
         app.setReminderEnabled(reminderEnabled);
         app.setLastNotifiedAt(null);
         closeReminderForTerminalStatus(app);
@@ -91,7 +91,7 @@ public class JobApplicationService {
         if (request.getJobTitle() != null)
             app.setJobTitle(request.getJobTitle());
         if (request.getJobUrl() != null)
-            app.setJoburl(request.getJobUrl());
+            app.setJobUrl(request.getJobUrl());
         if (request.getLocation() != null)
             app.setLocation(request.getLocation());
         if (request.getSource() != null)
@@ -111,8 +111,8 @@ public class JobApplicationService {
             app.setFollowUpDate(request.getFollowUpDate());
         }
 
-        if(request.getRemindeAt() != null) {
-            app.setRemindeAt(request.getRemindeAt());
+        if(request.getRemindedAt() != null) {
+            app.setRemindedAt(request.getRemindedAt());
         }
 
 
@@ -145,7 +145,7 @@ public class JobApplicationService {
                 .filter(application -> application.getUserId().equals(userId))
                 .orElseThrow(() -> new ResourceNotFoundException("Application not found: " + id));
 
-        app.setRemindeAt(LocalDate.now(BUSINESS_ZONE));
+        app.setRemindedAt(LocalDate.now(BUSINESS_ZONE));
         app.setLastNotifiedAt(null);
         app.setUpdatedAt(LocalDateTime.now());
         return applicationMapper.toResponse(applicationRepository.save(app));

@@ -20,7 +20,7 @@ const emptyPayload: JobApplicationPayload = {
   appliedDate: null,
   followUpDate: null,
   reminderEnabled: true,
-  remindeAt: null,
+  remindedAt: null,
   notes: "",
 };
 
@@ -259,7 +259,7 @@ const ApplicationsPage: React.FC = () => {
       appliedDate: app.appliedDate ?? null,
       followUpDate: app.followUpDate ?? null,
       reminderEnabled: app.reminderEnabled ?? true,
-      remindeAt: app.remindeAt ?? null,
+      remindedAt: app.remindedAt ?? null,
       notes: app.notes ?? "",
     });
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -309,7 +309,7 @@ const ApplicationsPage: React.FC = () => {
   }
   function getReminderStatus(app: JobApplication): string {
     if (app.reminderEnabled === false) return "Off";
-    if (app.remindeAt) return "Completed";
+    if (app.remindedAt) return "Completed";
     if (!app.followUpDate) return "On";
 
     const today = new Date().toISOString().slice(0, 10);

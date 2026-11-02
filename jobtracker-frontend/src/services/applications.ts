@@ -44,7 +44,7 @@ export interface JobApplication {
   updatedAt: string;
   followUpDate?: string | null;
   reminderEnabled?: boolean;
-  remindeAt?: string | null;
+  remindedAt?: string | null;
   lastNotifiedAt?: string | null;
 }
 
@@ -59,7 +59,7 @@ export interface JobApplicationPayload {
   notes?: string | null;
   followUpDate?: string | null;
   reminderEnabled?: boolean;
-  remindeAt?: string | null;
+  remindedAt?: string | null;
 }
 
 function authHeaders() {

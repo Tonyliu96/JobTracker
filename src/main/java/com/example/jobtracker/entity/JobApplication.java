@@ -22,7 +22,7 @@ public class JobApplication {
     @Column(nullable = false)
     private String jobTitle;
 
-    private String joburl;
+    private String jobUrl;
 
     private String location;
 
@@ -53,7 +53,7 @@ public class JobApplication {
     private Boolean reminderEnabled = true;
 
     @Column(nullable = true)
-    private LocalDate remindeAt;
+    private LocalDate remindedAt;
     
     @Column(nullable = true)
     private LocalDate lastNotifiedAt;       
@@ -67,10 +67,6 @@ public class JobApplication {
 //
 //    public String getJobTitle() {
 //        return jobTitle;
-//    }
-//
-//    public String getJoburl() {
-//        return joburl;
 //    }
 //
 //    public String getLocation() {
@@ -110,11 +106,6 @@ public class JobApplication {
 //    public String setJobTitle(String jobTitle) {
 //        this.jobTitle = jobTitle;
 //        return jobTitle;
-//    }
-//
-//    public String setJoburl(String joburl) {
-//        this.joburl = joburl;
-//        return joburl;
 //    }
 //
 //    public String setLocation(String location) {

@@ -91,13 +91,13 @@ class JobApplicationControllerTest {
     @Test
     void markFollowUpDoneReturnsUpdatedApplication() throws Exception {
         JobApplicationResponse response = sampleResponse();
-        response.setRemindeAt(LocalDate.of(2026, 3, 20));
+        response.setRemindedAt(LocalDate.of(2026, 3, 20));
         when(jobApplicationService.markFollowUpDone(42L, 1L)).thenReturn(response);
 
         mockMvc.perform(post("/api/applications/42/follow-up-done")
                         .principal(new UsernamePasswordAuthenticationToken(1L, null, Collections.emptyList())))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.remindeAt").value("2026-03-20"));
+                .andExpect(jsonPath("$.remindedAt").value("2026-03-20"));
     }
 
     private JobApplicationResponse sampleResponse() {

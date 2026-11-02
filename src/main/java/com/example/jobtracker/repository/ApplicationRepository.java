@@ -20,7 +20,7 @@ public interface ApplicationRepository extends JpaRepository<JobApplication, Lon
           AND a.reminderEnabled = true
           AND a.followUpDate IS NOT NULL
           AND a.followUpDate <= :today
-          AND a.remindeAt IS NULL
+          AND a.remindedAt IS NULL
           AND (a.lastNotifiedAt IS NULL OR a.lastNotifiedAt < :today)
           AND a.status NOT IN (
               com.example.jobtracker.entity.ApplicationStatus.OFFER,
@@ -36,7 +36,7 @@ public interface ApplicationRepository extends JpaRepository<JobApplication, Lon
         WHERE a.reminderEnabled = true
           AND a.followUpDate IS NOT NULL
           AND a.followUpDate <= :today
-          AND a.remindeAt IS NULL
+          AND a.remindedAt IS NULL
           AND (a.lastNotifiedAt IS NULL OR a.lastNotifiedAt < :today)
           AND a.status NOT IN (
               com.example.jobtracker.entity.ApplicationStatus.OFFER,

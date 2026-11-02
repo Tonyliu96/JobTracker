@@ -20,4 +20,4 @@ COPY --from=build /app/target/jobtracker-0.0.1-SNAPSHOT.jar app.jar
 EXPOSE 8080
 
 
-ENTRYPOINT ["java", "-Xmx320m", "-Xms320m", "-jar", "app.jar"]
+ENTRYPOINT ["sh", "-c", "exec java -Xmx320m -Xms320m -Dserver.port=${PORT:-8080} -jar app.jar"]

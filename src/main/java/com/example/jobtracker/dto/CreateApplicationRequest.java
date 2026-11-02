@@ -20,5 +20,5 @@ public class CreateApplicationRequest {
     private String notes;
     private LocalDate followUpDate;
     private Boolean reminderEnabled;
-    private LocalDate remindeAt;
+    private LocalDate remindedAt;
 }

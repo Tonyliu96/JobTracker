@@ -22,7 +22,7 @@ public class JobApplicationResponse {
     private LocalDateTime updatedAt;
     private LocalDate followUpDate;
     private Boolean reminderEnabled;
-    private LocalDate remindeAt;
+    private LocalDate remindedAt;
     private LocalDate lastNotifiedAt;
 
 }

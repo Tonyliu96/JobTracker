@@ -188,3 +188,13 @@ npm test
 - Cloud deployment support
 
 ## Author👨🏻‍💻
+# Environment variables
+
+For local or Render deployments, configure `DB_URL`, `DB_USERNAME`, `DB_PASSWORD`,
+`JWT_SECRET`, `GOOGLE_CLIENT_ID`, `FRONTEND_ORIGIN`, `PORT`,
+`NOTIFICATIONS_CRON`, and `NOTIFICATIONS_ZONE`. The JDBC URL must use
+`jdbc:postgresql://...` and Neon connections should include `sslmode=require`.
+
+The backend runs with `./mvnw spring-boot:run`. The frontend runs from
+`jobtracker-frontend` with `npm run dev`. Windows users can use `mvnw.cmd
+spring-boot:run` and run the frontend command from PowerShell.

@@ -52,7 +52,7 @@ public class AuthService {
     public UserProfileResponse getProfile(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
-        return new UserProfileResponse(user.getId(), user.getEmail());
+        return new UserProfileResponse(user.getId(), user.getEmail(), user.getAuthProvider());
     }
 
     public void changePassword(Long userId, ChangePasswordRequest request) {
@@ -91,6 +91,7 @@ public class AuthService {
             User newUser = new User();
             newUser.setEmail(email);
             newUser.setPasswordHash(passwordEncoder.encode(java.util.UUID.randomUUID().toString()));
+            newUser.setAuthProvider("GOOGLE");
             return userRepository.save(newUser);
         });
         String token = jwtUtil.generateToken(user.getId(), user.getEmail());

@@ -11,7 +11,7 @@ public class ApplicationMapper {
         JobApplication app = new JobApplication();
         app.setCompanyName(request.getCompanyName());
         app.setJobTitle(request.getJobTitle());
-        app.setJoburl(request.getJobUrl());
+        app.setJobUrl(request.getJobUrl());
         app.setLocation(request.getLocation());
         app.setSource(request.getSource());
         app.setStatus(request.getStatus());
@@ -19,7 +19,7 @@ public class ApplicationMapper {
         app.setNotes(request.getNotes());
         app.setFollowUpDate(request.getFollowUpDate());
         app.setReminderEnabled(request.getReminderEnabled());
-        app.setRemindeAt(request.getRemindeAt());
+        app.setRemindedAt(request.getRemindedAt());
         return app;
     }
 
@@ -28,7 +28,7 @@ public class ApplicationMapper {
         dto.setId(app.getId());
         dto.setCompanyName(app.getCompanyName());
         dto.setJobTitle(app.getJobTitle());
-        dto.setJobUrl(app.getJoburl());
+        dto.setJobUrl(app.getJobUrl());
         dto.setLocation(app.getLocation());
         dto.setSource(app.getSource());
         dto.setStatus(app.getStatus());
@@ -38,7 +38,7 @@ public class ApplicationMapper {
         dto.setUpdatedAt(app.getUpdatedAt());
         dto.setFollowUpDate(app.getFollowUpDate());
         dto.setReminderEnabled(app.getReminderEnabled());
-        dto.setRemindeAt(app.getRemindeAt());
+        dto.setRemindedAt(app.getRemindedAt());
         dto.setLastNotifiedAt(app.getLastNotifiedAt());
         return dto;
     }
