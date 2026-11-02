@@ -1,10 +1,34 @@
-HELP.md
-target/
-.mvn/wrapper/maven-wrapper.jar
-!**/src/main/**/target/
-!**/src/test/**/target/
+# Secrets and local configuration
+src/main/resources/application.properties
+src/main/resources/application-*.properties
+!src/main/resources/application-example.properties
+.env
+.env.*
+!.env.example
+*.pem
+*.key
 
-### STS ###
+# Build output and logs
+target/
+*.log
+logs/
+node_modules/
+dist/
+.vite/
+coverage/
+*.tsbuildinfo
+playwright-report/
+test-results/
+
+# IDE and operating system files
+.idea/
+*.iml
+.vscode/
+.DS_Store
+
+# Maven and IDE metadata
+HELP.md
+.mvn/wrapper/maven-wrapper.jar
 .apt_generated
 .classpath
 .factorypath
@@ -12,43 +36,9 @@ target/
 .settings
 .springBeans
 .sts4-cache
-
-### IntelliJ IDEA ###
-.idea
 *.iws
-*.iml
 *.ipr
-
-### NetBeans ###
 /nbproject/private/
 /nbbuild/
-/dist/
-/nbdist/
 /.nb-gradle/
 build/
-!**/src/main/**/build/
-!**/src/test/**/build/
-
-### VS Code ###
-.vscode/
-
-### MacOS ###
-.DS_Store
-
-# backend secrets
-src/main/resources/application.properties
-
-# frontend secrets
-jobtracker-frontend/.env
-jobtracker-frontend/.env.local
-
-# frontend build
-jobtracker-frontend/node_modules/
-jobtracker-frontend/dist/
-
-# spring boot build
-target/
-
-### Frontend build ###
-jobtracker-frontend/node_modules/
-jobtracker-frontend/dist/

@@ -15,7 +15,11 @@ for port in 8080 5173; do
 done
 
 # 3. setting JAVA_HOME for macOS (adjust if on Linux or Windows)
-export JAVA_HOME=$(/usr/libexec/java_home)
+if command -v /usr/libexec/java_home >/dev/null 2>&1; then
+    export JAVA_HOME=$(/usr/libexec/java_home)
+elif [ -z "${JAVA_HOME:-}" ]; then
+    export JAVA_HOME="$(dirname "$(dirname "$(command -v java)")")"
+fi
 
 # 4. define cleanup function to kill all child processes on exit
 cleanup() {

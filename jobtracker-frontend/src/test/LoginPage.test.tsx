@@ -1,11 +1,11 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
-import LoginPage from "../pages/LoginPage";
-import { login, saveAuth } from "../services/auth";
+import LoginPage from "../features/auth/pages/LoginPage";
+import { login, saveAuth } from "../features/auth/api/auth";
 
-vi.mock("../services/auth", async () => {
-  const actual = await vi.importActual<typeof import("../services/auth")>("../services/auth");
+vi.mock("../features/auth/api/auth", async () => {
+  const actual = await vi.importActual<typeof import("../features/auth/api/auth")>("../features/auth/api/auth");
   return {
     ...actual,
     login: vi.fn(),
