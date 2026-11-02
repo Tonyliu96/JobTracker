@@ -69,7 +69,7 @@ function ProtectedLayout() {
 
   return <div className="min-h-screen bg-background text-foreground">
     <nav className="sticky top-0 z-40 border-b border-border bg-surface/90 backdrop-blur">
-      <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-3 sm:flex-row sm:items-center sm:justify-between lg:px-8">
         <div className="flex min-w-0 items-center gap-5">
           <NavLink to="/dashboard" className="flex min-w-0 items-center gap-3">
             <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary text-sm font-bold text-primary-foreground">JT</span>
