@@ -18,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class NotificationService {
     private final NotificationRepository notificationRepository;
+    private final Scheduler scheduler;
 
     public List<NotificationResponse> listByUserId(Long userId) {
         return notificationRepository.findByUserIdOrderByCreatedAtDesc(userId)
@@ -27,13 +28,12 @@ public class NotificationService {
     }
 
     public long unreadCount(Long userId) {
+        scheduler.generateDueNotificationsForUser(userId);
         return notificationRepository.countByUserIdAndReadFalse(userId);
     }
 
     @Transactional
     public void markAsRead(Long notificationId, Long userId) {
-        // First, we fetch the notification by its ID. If it doesn't exist, we throw a
-        // ResourceNotFoundException.
         Notification notification = notificationRepository.findByIdAndUserId(notificationId, userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Notification not found: " + notificationId));
 
@@ -41,20 +41,6 @@ public class NotificationService {
         notification.setReadAt(LocalDateTime.now());
         notificationRepository.save(notification);
 
-        // User possibly can only mark their own notifications as read, so we check the
-        // userId
-        // if (notification.getUserId().equals(userId)) {
-        // notification.setRead(true);
-        // // sync readAt timestamp with the time when the notification is marked as
-        // read
-        // notification.setReadAt(LocalDateTime.now());
-        // notificationRepository.save(notification);
-        // } else {
-        // // if the notification does not belong to the user, we can either ignore or
-        // // throw an exception
-        // throw new ResourceNotFoundException("Notification not found: " +
-        // notificationId);
-        // }
     }
 
 }

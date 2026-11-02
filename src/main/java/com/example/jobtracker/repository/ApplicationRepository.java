@@ -21,6 +21,7 @@ public interface ApplicationRepository extends JpaRepository<JobApplication, Lon
           AND a.followUpDate IS NOT NULL
           AND a.followUpDate <= :today
           AND a.remindeAt IS NULL
+          AND (a.lastNotifiedAt IS NULL OR a.lastNotifiedAt < :today)
           AND a.status NOT IN (
               com.example.jobtracker.entity.ApplicationStatus.OFFER,
               com.example.jobtracker.entity.ApplicationStatus.REJECTED,
