@@ -1,7 +1,6 @@
 package com.example.jobtracker.dto;
 
-import com.example.jobtracker.Entity.ApplicationStatus;
-import com.example.jobtracker.Entity.JobApplication;
+import com.example.jobtracker.entity.ApplicationStatus;
 import lombok.Data;
 
 import java.time.LocalDate;
@@ -26,23 +25,4 @@ public class JobApplicationResponse {
     private LocalDate remindeAt;
     private LocalDate lastNotifiedAt;
 
-    public static JobApplicationResponse fromEntity(JobApplication app) {
-        JobApplicationResponse dto = new JobApplicationResponse();
-        dto.setId(app.getId());
-        dto.setCompanyName(app.getCompanyName());
-        dto.setJobTitle(app.getJobTitle());
-        dto.setJobUrl(app.getJoburl());
-        dto.setLocation(app.getLocation());
-        dto.setSource(app.getSource());
-        dto.setStatus(app.getStatus());
-        dto.setAppliedDate(app.getAppliedDate());
-        dto.setNotes(app.getNotes());
-        dto.setCreatedAt(app.getCreatedAt());
-        dto.setUpdatedAt(app.getUpdatedAt());
-        dto.setFollowUpDate(app.getFollowUpDate());
-        dto.setReminderEnabled(app.getReminderEnabled());
-        dto.setRemindeAt(app.getRemindeAt());
-        dto.setLastNotifiedAt(app.getLastNotifiedAt());
-        return dto;
-    }
 }

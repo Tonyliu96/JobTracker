@@ -1,7 +1,7 @@
-package com.example.jobtracker.Repository;
+package com.example.jobtracker.repository;
 
 import org.springframework.stereotype.Repository;
-import com.example.jobtracker.Entity.Notification;
+import com.example.jobtracker.entity.Notification;
 import java.util.Optional;
 
 import java.util.List;

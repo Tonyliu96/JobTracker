@@ -1,4 +1,4 @@
-package com.example.jobtracker.Entity;
+package com.example.jobtracker.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;

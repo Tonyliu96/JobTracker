@@ -1,4 +1,4 @@
-package com.example.jobtracker.Service;
+package com.example.jobtracker.service;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -6,8 +6,8 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
-import com.example.jobtracker.Entity.Notification;
-import com.example.jobtracker.Repository.NotificationRepository;
+import com.example.jobtracker.entity.Notification;
+import com.example.jobtracker.repository.NotificationRepository;
 import com.example.jobtracker.dto.NotificationResponse;
 import com.example.jobtracker.exception.ResourceNotFoundException;
 

@@ -1,4 +1,4 @@
-package com.example.jobtracker.Entity;
+package com.example.jobtracker.entity;
 
 public enum ApplicationStatus {
     SAVED,

@@ -1,6 +1,6 @@
-package com.example.jobtracker.Controller;
+package com.example.jobtracker.controller;
 
-import com.example.jobtracker.Service.AuthService;
+import com.example.jobtracker.service.AuthService;
 import com.example.jobtracker.dto.AuthRequest;
 import com.example.jobtracker.dto.AuthResponse;
 import com.example.jobtracker.dto.ChangePasswordRequest;

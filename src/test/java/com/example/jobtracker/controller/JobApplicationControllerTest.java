@@ -1,7 +1,7 @@
-package com.example.jobtracker.Controller;
+package com.example.jobtracker.controller;
 
-import com.example.jobtracker.Entity.ApplicationStatus;
-import com.example.jobtracker.Service.JobApplicationService;
+import com.example.jobtracker.entity.ApplicationStatus;
+import com.example.jobtracker.service.JobApplicationService;
 import com.example.jobtracker.dto.JobApplicationResponse;
 import com.example.jobtracker.exception.GlobalExceptionHandler;
 import com.fasterxml.jackson.databind.ObjectMapper;

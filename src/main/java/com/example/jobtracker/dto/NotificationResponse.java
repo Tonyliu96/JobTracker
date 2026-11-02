@@ -3,8 +3,8 @@ package com.example.jobtracker.dto;
 import java.time.LocalDateTime;
 import lombok.Data;
 
-import com.example.jobtracker.Entity.Notification;
-import com.example.jobtracker.Entity.NotificationType;
+import com.example.jobtracker.entity.Notification;
+import com.example.jobtracker.entity.NotificationType;
 
 @Data
 public class NotificationResponse {

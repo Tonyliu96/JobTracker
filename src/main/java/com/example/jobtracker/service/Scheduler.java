@@ -1,4 +1,4 @@
-package com.example.jobtracker.Service;
+package com.example.jobtracker.service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -7,11 +7,11 @@ import java.util.List;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import com.example.jobtracker.Entity.JobApplication;
-import com.example.jobtracker.Entity.Notification;
-import com.example.jobtracker.Entity.NotificationType;
-import com.example.jobtracker.Repository.ApplicationRepository;
-import com.example.jobtracker.Repository.NotificationRepository;
+import com.example.jobtracker.entity.JobApplication;
+import com.example.jobtracker.entity.Notification;
+import com.example.jobtracker.entity.NotificationType;
+import com.example.jobtracker.repository.ApplicationRepository;
+import com.example.jobtracker.repository.NotificationRepository;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;

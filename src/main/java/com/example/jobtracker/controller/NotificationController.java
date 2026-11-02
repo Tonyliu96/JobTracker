@@ -1,7 +1,7 @@
-package com.example.jobtracker.Controller;
+package com.example.jobtracker.controller;
 
 import com.example.jobtracker.dto.NotificationResponse;
-import com.example.jobtracker.Service.NotificationService;
+import com.example.jobtracker.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;

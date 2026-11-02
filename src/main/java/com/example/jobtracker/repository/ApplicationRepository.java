@@ -1,6 +1,6 @@
-package com.example.jobtracker.Repository;
+package com.example.jobtracker.repository;
 
-import com.example.jobtracker.Entity.JobApplication;
+import com.example.jobtracker.entity.JobApplication;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -22,9 +22,9 @@ public interface ApplicationRepository extends JpaRepository<JobApplication, Lon
           AND a.followUpDate <= :today
           AND a.remindeAt IS NULL
           AND a.status NOT IN (
-              com.example.jobtracker.Entity.ApplicationStatus.OFFER,
-              com.example.jobtracker.Entity.ApplicationStatus.REJECTED,
-              com.example.jobtracker.Entity.ApplicationStatus.WITHDRAWN
+              com.example.jobtracker.entity.ApplicationStatus.OFFER,
+              com.example.jobtracker.entity.ApplicationStatus.REJECTED,
+              com.example.jobtracker.entity.ApplicationStatus.WITHDRAWN
           )
     """)
     List<JobApplication> findDueFollowUpsByUserId(@Param("userId") Long userId, @Param("today") LocalDate today);
@@ -38,9 +38,9 @@ public interface ApplicationRepository extends JpaRepository<JobApplication, Lon
           AND a.remindeAt IS NULL
           AND (a.lastNotifiedAt IS NULL OR a.lastNotifiedAt < :today)
           AND a.status NOT IN (
-              com.example.jobtracker.Entity.ApplicationStatus.OFFER,
-              com.example.jobtracker.Entity.ApplicationStatus.REJECTED,
-              com.example.jobtracker.Entity.ApplicationStatus.WITHDRAWN
+              com.example.jobtracker.entity.ApplicationStatus.OFFER,
+              com.example.jobtracker.entity.ApplicationStatus.REJECTED,
+              com.example.jobtracker.entity.ApplicationStatus.WITHDRAWN
           )
     """)
     List<JobApplication> findAllDueFollowUps(@Param("today") LocalDate today);

@@ -1,7 +1,7 @@
-package com.example.jobtracker.Service;
+package com.example.jobtracker.service;
 
-import com.example.jobtracker.Entity.User;
-import com.example.jobtracker.Repository.UserRepository;
+import com.example.jobtracker.entity.User;
+import com.example.jobtracker.repository.UserRepository;
 import com.example.jobtracker.dto.AuthRequest;
 import com.example.jobtracker.dto.AuthResponse;
 import com.example.jobtracker.dto.ChangePasswordRequest;
@@ -12,7 +12,6 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -26,8 +25,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
 
-    @Value("${google.client-id:}")
-    private String googleClientId;
+    private final GoogleProperties googleProperties;
 
     public AuthResponse register(AuthRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
@@ -68,13 +66,13 @@ public class AuthService {
     }
 
     public AuthResponse loginWithGoogle(String idTokenString) {
-        if (googleClientId == null || googleClientId.isBlank()) {
+        if (googleProperties.getClientId() == null || googleProperties.getClientId().isBlank()) {
             throw new IllegalArgumentException("Google login is not configured");
         }
         GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(
                 new NetHttpTransport(),
                 GsonFactory.getDefaultInstance())
-                .setAudience(Collections.singletonList(googleClientId))
+                .setAudience(Collections.singletonList(googleProperties.getClientId()))
                 .build();
         GoogleIdToken idToken;
         try {

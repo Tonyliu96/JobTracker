@@ -1,6 +1,6 @@
-package com.example.jobtracker.Repository;
+package com.example.jobtracker.repository;
 
-import com.example.jobtracker.Entity.User;
+import com.example.jobtracker.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

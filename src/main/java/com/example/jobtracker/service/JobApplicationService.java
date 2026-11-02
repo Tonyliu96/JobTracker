@@ -1,9 +1,11 @@
-package com.example.jobtracker.Service;
+package com.example.jobtracker.service;
 
-import com.example.jobtracker.Entity.JobApplication;
-import com.example.jobtracker.Repository.ApplicationRepository;
-import com.example.jobtracker.dto.JobApplicationRequest;
+import com.example.jobtracker.entity.JobApplication;
+import com.example.jobtracker.repository.ApplicationRepository;
+import com.example.jobtracker.dto.CreateApplicationRequest;
+import com.example.jobtracker.dto.UpdateApplicationRequest;
 import com.example.jobtracker.dto.JobApplicationResponse;
+import com.example.jobtracker.mapper.ApplicationMapper;
 import com.example.jobtracker.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,10 +24,11 @@ public class JobApplicationService {
     private static final ZoneId BUSINESS_ZONE = ZoneId.of("Australia/Sydney");
 
     private final ApplicationRepository applicationRepository;
+    private final ApplicationMapper applicationMapper;
 
     public List<JobApplicationResponse> listByUserId(Long userId) {
         return applicationRepository.findByUserId(userId).stream()
-                .map(JobApplicationResponse::fromEntity)
+                .map(applicationMapper::toResponse)
                 .collect(Collectors.toList());
     }
 
@@ -35,11 +38,11 @@ public class JobApplicationService {
         if (!app.getUserId().equals(userId)) {
             throw new ResourceNotFoundException("Application not found: " + id);
         }
-        return JobApplicationResponse.fromEntity(app);
+        return applicationMapper.toResponse(app);
     }
 
     @Transactional
-    public JobApplicationResponse create(JobApplicationRequest request, Long userId) {
+    public JobApplicationResponse create(CreateApplicationRequest request, Long userId) {
         var nowDate = java.time.LocalDate.now();
         // if (request.getCreatedDate() != null && request.getCreatedDate().isAfter(nowDate)) {
         //     throw new IllegalArgumentException("Created date cannot be in the future");
@@ -47,15 +50,10 @@ public class JobApplicationService {
 
         boolean reminderEnabled = request.getReminderEnabled() == null || request.getReminderEnabled();
 
-        JobApplication app = new JobApplication();
+        JobApplication app = applicationMapper.toEntity(request);
         app.setUserId(userId);
-        app.setCompanyName(request.getCompanyName());
-        app.setJobTitle(request.getJobTitle());
-        app.setJoburl(request.getJobUrl());
-        app.setLocation(request.getLocation());
-        app.setSource(request.getSource());
-        app.setStatus(request.getStatus() != null ? request.getStatus()
-                : com.example.jobtracker.Entity.ApplicationStatus.APPLIED);
+        app.setStatus(app.getStatus() != null ? app.getStatus()
+                : com.example.jobtracker.entity.ApplicationStatus.APPLIED);
 
         LocalDate appliedDate = request.getAppliedDate() != null ? request.getAppliedDate() : nowDate;
         app.setAppliedDate(appliedDate);
@@ -77,11 +75,11 @@ public class JobApplicationService {
         app.setLastNotifiedAt(null);
         closeReminderForTerminalStatus(app);
 
-        return JobApplicationResponse.fromEntity(applicationRepository.save(app));
+        return applicationMapper.toResponse(applicationRepository.save(app));
     }
 
     @Transactional
-    public JobApplicationResponse update(Long id, JobApplicationRequest request, Long userId) {
+    public JobApplicationResponse update(Long id, UpdateApplicationRequest request, Long userId) {
         JobApplication app = applicationRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Application not found: " + id));
 
@@ -120,7 +118,7 @@ public class JobApplicationService {
 
         closeReminderForTerminalStatus(app);
 
-        return JobApplicationResponse.fromEntity(applicationRepository.save(app));
+        return applicationMapper.toResponse(applicationRepository.save(app));
     }
 
     @Transactional
@@ -137,7 +135,7 @@ public class JobApplicationService {
         
         LocalDate today = LocalDate.now();
         return applicationRepository.findDueFollowUpsByUserId(userId, today).stream()
-                .map(JobApplicationResponse::fromEntity)
+                .map(applicationMapper::toResponse)
                 .collect(Collectors.toList());
     }
 
@@ -150,13 +148,13 @@ public class JobApplicationService {
         app.setRemindeAt(LocalDate.now(BUSINESS_ZONE));
         app.setLastNotifiedAt(null);
         app.setUpdatedAt(LocalDateTime.now());
-        return JobApplicationResponse.fromEntity(applicationRepository.save(app));
+        return applicationMapper.toResponse(applicationRepository.save(app));
     }
 
     private void closeReminderForTerminalStatus(JobApplication app) {
-        if (app.getStatus() == com.example.jobtracker.Entity.ApplicationStatus.OFFER
-                || app.getStatus() == com.example.jobtracker.Entity.ApplicationStatus.REJECTED
-                || app.getStatus() == com.example.jobtracker.Entity.ApplicationStatus.WITHDRAWN) {
+        if (app.getStatus() == com.example.jobtracker.entity.ApplicationStatus.OFFER
+                || app.getStatus() == com.example.jobtracker.entity.ApplicationStatus.REJECTED
+                || app.getStatus() == com.example.jobtracker.entity.ApplicationStatus.WITHDRAWN) {
             app.setReminderEnabled(false);
         }
     }

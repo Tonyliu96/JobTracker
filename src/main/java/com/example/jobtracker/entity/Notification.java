@@ -1,4 +1,4 @@
-package com.example.jobtracker.Entity;
+package com.example.jobtracker.entity;
 
 import java.time.LocalDateTime;
 import lombok.Data;

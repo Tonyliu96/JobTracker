@@ -3,25 +3,22 @@ package com.example.jobtracker.security;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
-import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
 @Component
 public class JwtUtil {
 
-    @Value("${jwt.secret:your-256-bit-secret-key-for-jobtracker-must-be-long-enough}")
-    private String secret;
+    private final JwtProperties properties;
 
-    @Value("${jwt.expiration-ms:86400000}")
-    private long expirationMs;
+    public JwtUtil(JwtProperties properties) {
+        this.properties = properties;
+    }
 
     private SecretKey getSigningKey() {
-        byte[] keyBytes = secret.getBytes(StandardCharsets.UTF_8);
-        return Keys.hmacShaKeyFor(keyBytes);
+        return Keys.hmacShaKeyFor(properties.getSecret().getBytes(java.nio.charset.StandardCharsets.UTF_8));
     }
 
     public String generateToken(Long userId, String email) {
@@ -29,7 +26,7 @@ public class JwtUtil {
                 .subject(String.valueOf(userId))
                 .claim("email", email)
                 .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + expirationMs))
+                .expiration(new Date(System.currentTimeMillis() + properties.getExpirationMs()))
                 .signWith(getSigningKey())
                 .compact();
     }

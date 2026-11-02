@@ -1,7 +1,8 @@
-package com.example.jobtracker.Controller;
+package com.example.jobtracker.controller;
 
-import com.example.jobtracker.Service.JobApplicationService;
-import com.example.jobtracker.dto.JobApplicationRequest;
+import com.example.jobtracker.service.JobApplicationService;
+import com.example.jobtracker.dto.CreateApplicationRequest;
+import com.example.jobtracker.dto.UpdateApplicationRequest;
 import com.example.jobtracker.dto.JobApplicationResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -35,7 +36,7 @@ public class JobApplicationController {
 
     @PostMapping
     public ResponseEntity<JobApplicationResponse> create(
-            @Valid @RequestBody JobApplicationRequest request,
+            @Valid @RequestBody CreateApplicationRequest request,
             Authentication auth) {
         return ResponseEntity.ok(jobApplicationService.create(request, currentUserId(auth)));
     }
@@ -43,7 +44,7 @@ public class JobApplicationController {
     @PatchMapping("/{id}")
     public ResponseEntity<JobApplicationResponse> update(
             @PathVariable Long id,
-            @RequestBody JobApplicationRequest request,
+            @RequestBody UpdateApplicationRequest request,
             Authentication auth) {
         return ResponseEntity.ok(jobApplicationService.update(id, request, currentUserId(auth)));
     }
