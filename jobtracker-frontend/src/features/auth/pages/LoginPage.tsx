@@ -1,203 +1,42 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { GoogleLogin } from "@react-oauth/google";
+import { AlertCircle, Eye, EyeOff, LoaderCircle } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { login, loginWithGoogle, saveAuth } from "../api/auth";
+import AuthThemeToggle from "../components/AuthThemeToggle";
+
+const inputClass = "h-11 w-full rounded-lg border border-border bg-surface-muted px-3.5 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/30";
 
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [googleUnavailable, setGoogleUnavailable] = useState(!import.meta.env.VITE_GOOGLE_CLIENT_ID);
+  const [darkMode, setDarkMode] = useState(() => document.documentElement.classList.contains("dark"));
+  useEffect(() => { const handleThemeChange = (event: Event) => setDarkMode((event as CustomEvent<{ darkMode: boolean }>).detail.darkMode); window.addEventListener("jobtracker-theme-change", handleThemeChange); return () => window.removeEventListener("jobtracker-theme-change", handleThemeChange); }, []);
+  const completeLogin = (data: { token: string; userId: number; email: string }) => { saveAuth(data); navigate("/dashboard", { replace: true }); };
+  const errorMessage = (err: unknown, fallback: string) => { const message = err instanceof Error ? err.message : fallback; return message.includes("429") || message.toLowerCase().includes("too many") ? "Too many attempts. Please try again in a minute." : message; };
+  const handleSubmit = async (event: React.FormEvent) => { event.preventDefault(); setError(null); setLoading(true); try { completeLogin(await login(email, password)); } catch (err: unknown) { setError(errorMessage(err, "Login failed")); } finally { setLoading(false); } };
+  const handleGoogleSuccess = async (credential: string) => { setError(null); setLoading(true); try { completeLogin(await loginWithGoogle(credential)); } catch (err: unknown) { setError(errorMessage(err, "Google login failed")); setGoogleUnavailable(true); } finally { setLoading(false); } };
 
-  const completeLogin = (token: { token: string; userId: number; email: string }) => {
-    saveAuth(token);
-    navigate("/dashboard", { replace: true });
-  };
-
-  const handleGoogleSuccess = async (credential: string) => {
-    setError(null);
-    setLoading(true);
-    try {
-      const data = await loginWithGoogle(credential);
-      completeLogin(data);
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Google login failed");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-    setLoading(true);
-    try {
-      const data = await login(email, password);
-      completeLogin(data);
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Login failed");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,_rgba(56,189,248,0.16),_transparent_28%),radial-gradient(circle_at_bottom_right,_rgba(16,185,129,0.14),_transparent_24%),linear-gradient(180deg,_#f8fafc_0%,_#e2e8f0_100%)] px-4 py-10">
-      <div className="mx-auto grid min-h-[calc(100vh-5rem)] w-full max-w-6xl items-center gap-8 lg:grid-cols-[1.1fr_480px]">
-        <section className="hidden lg:block">
-          <div className="max-w-xl">
-            <div className="inline-flex items-center rounded-full border border-slate-300 bg-white/70 px-3 py-1 text-xs font-medium uppercase tracking-[0.22em] text-slate-500">
-              JobTracker
-            </div>
-
-            <h1 className="mt-6 text-5xl font-semibold tracking-tight bg-gradient-to-r from-teal-500 to-indigo-900 bg-clip-text text-transparent">
-              Run your job search with a cleaner system.
-            </h1>
-
-            <p className="mt-5 max-w-lg text-base leading-7 text-slate-600">
-              Keep every role, stage update, note, and link in one place so your
-              search stays structured and easier to act on.
-            </p>
-
-            <div className="mt-10 grid gap-4">
-              <div className="rounded-[24px] border border-white/70 bg-white/70 p-5 shadow-sm backdrop-blur">
-                <p className="text-sm font-semibold text-slate-900">
-                  Track your full pipeline
-                </p>
-                <p className="mt-2 text-sm leading-6 text-slate-600">
-                  Review saved roles, applications, interviews, and offers without
-                  losing context.
-                </p>
-              </div>
-
-              <div className="rounded-[24px] border border-white/70 bg-white/70 p-5 shadow-sm backdrop-blur">
-                <p className="text-sm font-semibold text-slate-900">
-                  Focus on the next action
-                </p>
-                <p className="mt-2 text-sm leading-6 text-slate-600">
-                  Use dashboard views to spot active conversations and stale
-                  submissions quickly.
-                </p>
-              </div>
-
-              <div className="rounded-[24px] border border-white/70 bg-white/70 p-5 shadow-sm backdrop-blur">
-                <p className="text-sm font-semibold text-slate-900">
-                  Keep details organized
-                </p>
-                <p className="mt-2 text-sm leading-6 text-slate-600">
-                  Store job links, notes, locations, and sources in one consistent
-                  workflow.
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section className="w-full">
-          <div className="w-full rounded-[28px] border border-slate-200 bg-white/95 p-8 shadow-[0_20px_60px_rgba(15,23,42,0.12)] backdrop-blur sm:p-10">
-            <div>
-              <p className="text-sm font-medium uppercase tracking-[0.18em] text-slate-500">
-                Welcome back
-              </p>
-              <h2 className="mt-3 text-3xl font-semibold tracking-tight text-slate-950">
-                Sign in to JobTracker
-              </h2>
-              <p className="mt-3 text-sm leading-6 text-slate-600">
-                Review your applications, update pipeline stages, and continue
-                where you left off.
-              </p>
-            </div>
-
-            <form onSubmit={handleSubmit} className="mt-8 space-y-5">
-              {error && (
-                <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
-                  {error}
-                </div>
-              )}
-
-              <div>
-                <label
-                  htmlFor="login-email"
-                  className="mb-2 block text-sm font-medium text-slate-700">
-                  Email
-                </label>
-                <input
-                  id="login-email"
-                  type="email"
-                  className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm transition focus:border-slate-900 focus:outline-none focus:ring-4 focus:ring-slate-200"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="you@example.com"
-                  required />
-              </div>
-
-              <div>
-                <label
-                  htmlFor="login-password"
-                  className="mb-2 block text-sm font-medium text-slate-700">
-                  Password
-                </label>
-                <input
-                  id="login-password"
-                  type="password"
-                  className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm transition focus:border-slate-900 focus:outline-none focus:ring-4 focus:ring-slate-200"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter your password"
-                  required />
-              </div>
-
-              <button
-                type="submit"
-                disabled={loading}
-                className="inline-flex w-full items-center justify-center bg-linear-to-br from-green-400 to-blue-600 
-                text transition hover:bg-linear-to-bl focus:ring-4 focus:outline-none
-                focus:ring-green-400 dark:focus:ring-green-800 font-medium rounded-2xl text-lg px-4 py-2.5 text-center leading-5
-                disabled:cursor-not-allowed disabled:opacity-60">
-                {loading ? "Logging in..." : "Login"}
-              </button>
-
-              <div className="relative py-1">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-slate-200" />
-                </div>
-                <div className="relative flex justify-center text-xs">
-                  <span className="bg-white px-3 text-slate-500">or continue with</span>
-                </div>
-              </div>
-
-              <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
-                <p className="mb-3 text-center text-xs uppercase tracking-[0.18em] text-slate-500">
-                  Google account
-                </p>
-                <div className="flex justify-center">
-                  <GoogleLogin
-                    onSuccess={(res) => {
-                      if (res.credential) {
-                        void handleGoogleSuccess(res.credential);
-                      }
-                    }}
-                    onError={() => setError("Google login was cancelled or failed")}
-                    useOneTap={false}
-                    theme="outline"
-                    size="large"
-                    text="continue_with" />
-                </div>
-              </div>
-            </form>
-
-            <div className="mt-6 text-center text-sm text-slate-600">
-              Don&apos;t have an account?{" "}
-              <Link to="/register" className="font-medium text-violet-600 hover:underline">
-                Sign up
-              </Link>
-            </div>
-          </div>
-        </section>
-      </div>
-    </div>
-  );
+  return <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-background px-4 py-8 text-foreground sm:py-12" style={{ backgroundImage: "radial-gradient(circle at 50% 0%, color-mix(in srgb, var(--primary) 8%, transparent), transparent 55%)" }}>
+    <div className="absolute right-4 top-4 sm:right-6 sm:top-6"><AuthThemeToggle /></div>
+    <section className="relative w-full max-w-md rounded-xl border border-border bg-surface p-6 shadow-xl sm:p-8">
+      <header><div className="flex items-center gap-3"><span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-sm font-bold text-primary-foreground">JT</span><span className="text-lg font-semibold text-foreground">JobTracker</span></div><h1 className="mt-8 text-3xl font-semibold tracking-tight text-foreground">Sign in</h1><p className="mt-2 text-sm leading-6 text-muted-foreground">Welcome back. Enter your details to continue.</p></header>
+      <form onSubmit={handleSubmit} className="mt-7 space-y-5">
+        {error && <div role="alert" className="flex items-start gap-2 rounded-lg border border-rose-300 bg-rose-50 px-3.5 py-3 text-sm text-rose-700 dark:border-rose-800 dark:bg-rose-950/40 dark:text-rose-200"><AlertCircle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" /><span>{error}</span></div>}
+        <div><label htmlFor="login-email" className="mb-2 block text-sm font-medium text-foreground">Email</label><input autoFocus id="login-email" name="email" type="email" autoComplete="email" aria-invalid={Boolean(error)} className={inputClass} value={email} onChange={(event) => setEmail(event.target.value)} placeholder="you@example.com" required /></div>
+        <div><label htmlFor="login-password" className="mb-2 block text-sm font-medium text-foreground">Password</label><div className="relative"><input id="login-password" name="password" type={showPassword ? "text" : "password"} autoComplete="current-password" aria-invalid={Boolean(error)} className={`${inputClass} pr-11`} value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Enter your password" required /><button type="button" aria-label={showPassword ? "Hide value" : "Show value"} onClick={() => setShowPassword((value) => !value)} className="absolute right-1 top-1/2 inline-flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-md text-muted-foreground hover:bg-surface hover:text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40">{showPassword ? <EyeOff className="h-4 w-4" aria-hidden="true" /> : <Eye className="h-4 w-4" aria-hidden="true" />}</button></div></div>
+        <button type="submit" disabled={loading} className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 text-sm font-semibold text-primary-foreground transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-60">{loading && <LoaderCircle className="h-4 w-4 animate-spin" aria-hidden="true" />}{loading ? "Signing in..." : "Login"}</button>
+      </form>
+      <div className="relative my-6 flex items-center"><div className="w-full border-t border-border" /><span className="absolute left-1/2 -translate-x-1/2 bg-surface px-3 text-xs text-muted-foreground">or</span></div>
+      {googleUnavailable ? <button type="button" disabled className="inline-flex h-11 w-full items-center justify-center rounded-lg border border-border bg-surface-muted px-4 text-sm font-medium text-muted-foreground">Google sign-in unavailable</button> : <div className="flex min-h-11 w-full justify-center overflow-hidden rounded-lg [&>div]:w-full"><GoogleLogin onSuccess={(response) => { if (response.credential) void handleGoogleSuccess(response.credential); }} onError={() => { setError("Google login was cancelled or failed"); setGoogleUnavailable(true); }} useOneTap={false} theme={darkMode ? "filled_black" : "outline"} size="large" text="continue_with" width="100%" /></div>}
+      <p className="mt-6 text-center text-sm text-muted-foreground">Don&apos;t have an account? <Link to="/register" className="font-medium text-primary hover:underline">Sign up</Link></p>
+    </section>
+  </main>;
 };
 
 export default LoginPage;

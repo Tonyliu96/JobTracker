@@ -1,202 +1,82 @@
 import React, { useEffect, useState } from "react";
-import { changePassword, getEmail, getProfile, type UserProfile } from "../../auth/api/auth";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, LoaderCircle } from "lucide-react";
 import { toast } from "sonner";
+import { changePassword, getEmail, getProfile, type UserProfile } from "../../auth/api/auth";
+
+type PasswordFieldProps = {
+  id: string;
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  visible: boolean;
+  onToggle: () => void;
+};
+
+function PasswordField({ id, label, value, onChange, visible, onToggle }: PasswordFieldProps) {
+  return <div>
+    <label htmlFor={id} className="mb-1.5 block text-sm font-medium text-foreground">{label}</label>
+    <div className="relative">
+      <input id={id} type={visible ? "text" : "password"} value={value} onChange={(event) => onChange(event.target.value)} className="w-full rounded-md border border-border bg-surface-muted px-3 py-2.5 pr-11 text-sm text-foreground outline-none placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/25" required />
+      <button type="button" aria-label={visible ? `Hide ${label.toLowerCase()}` : `Show ${label.toLowerCase()}`} onClick={onToggle} className="absolute right-2 top-1/2 inline-flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-md text-muted-foreground transition hover:bg-surface hover:text-foreground">
+        {visible ? <EyeOff className="h-4 w-4" aria-hidden="true" /> : <Eye className="h-4 w-4" aria-hidden="true" />}
+      </button>
+    </div>
+  </div>;
+}
 
 const ProfilePage: React.FC = () => {
   const [email, setEmail] = useState<string | null>(null);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [showPasswords, setShowPasswords] = useState(false);
-  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [visibleFields, setVisibleFields] = useState<Record<string, boolean>>({});
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
 
   useEffect(() => {
     setEmail(getEmail());
     void getProfile().then(setProfile).catch(() => undefined);
   }, []);
 
-  const handleChangePassword = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setMessage(null);
+  const toggleField = (id: string) => setVisibleFields((previous) => ({ ...previous, [id]: !previous[id] }));
+  const handleChangePassword = async (event: React.FormEvent) => {
+    event.preventDefault();
     setLoading(true);
-
     try {
-      if (newPassword !== confirmPassword) {
-        throw new Error("New passwords do not match");
-      }
+      if (newPassword !== confirmPassword) throw new Error("New passwords do not match");
+      if (newPassword.length < 8) throw new Error("Password must be at least 8 characters");
       await changePassword(oldPassword, newPassword);
-      setMessage("Password updated successfully");
       toast.success("Password updated");
       setOldPassword("");
       setNewPassword("");
       setConfirmPassword("");
-    } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : "Failed to change password";
-      setMessage(errorMessage);
-      toast.error(errorMessage);
+    } catch (error: unknown) {
+      toast.error(error instanceof Error ? error.message : "Failed to change password");
     } finally {
       setLoading(false);
     }
   };
 
-  return (
-    <main className="max-w-5xl mx-auto px-4 py-6 space-y-6">
-      <section className="relative overflow-hidden rounded-[28px] border border-slate-200 bg-[radial-gradient(circle_at_top_left,_rgba(14,165,233,0.12),_transparent_30%),linear-gradient(135deg,_#ffffff_0%,_#f8fafc_55%,_#e2e8f0_100%)] p-6 shadow-sm">
-        <div className="absolute -right-10 top-0 h-32 w-32 rounded-full bg-sky-200/30 blur-3xl" />
-        <div className="absolute left-1/3 top-16 h-28 w-28 rounded-full bg-slate-300/20 blur-3xl" />
+  const initial = (email?.trim().charAt(0) || "U").toUpperCase();
+  const isGoogleAccount = profile?.authProvider === "GOOGLE";
 
-        <div className="relative grid gap-6 lg:grid-cols-[1.4fr_1fr]">
-          <div>
-            <div className="inline-flex items-center rounded-full border border-slate-300 bg-white/80 px-3 py-1 text-xs font-medium uppercase tracking-[0.22em] text-slate-500">
-              Profile
-            </div>
-            <h1 className="mt-4 text-3xl font-semibold tracking-tight text-slate-900 md:text-4xl">
-              Manage your account settings without leaving the workflow.
-            </h1>
-            <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600">
-              Review your account identity and keep your password current so the
-              rest of your dashboard stays uninterrupted.
-            </p>
-          </div>
+  return <main className="mx-auto max-w-3xl space-y-5 px-4 py-6 lg:px-8">
+    <header><h1 className="text-3xl font-semibold tracking-tight text-foreground">Profile</h1><p className="mt-1 text-sm text-muted-foreground">Manage your account and security</p></header>
 
-          <div className="grid gap-3 sm:grid-cols-2">
-            <div className="rounded-2xl border border-white/70 bg-white/80 px-4 py-4 shadow-sm backdrop-blur sm:col-span-2">
-              <p className="text-xs uppercase tracking-[0.18em] text-slate-500">
-                Account email
-              </p>
-              <p className="mt-2 text-xl font-semibold text-slate-900 break-all">
-                {email ?? "(Email not available)"}
-              </p>
-            </div>
-            <div className="rounded-2xl border border-white/70 bg-white/80 px-4 py-4 shadow-sm backdrop-blur">
-              <p className="text-xs uppercase tracking-[0.18em] text-slate-500">
-                Access level
-              </p>
-              <p className="mt-2 text-lg font-semibold text-slate-900">Standard user</p>
-            </div>
-            <div className="rounded-2xl border border-white/70 bg-white/80 px-4 py-4 shadow-sm backdrop-blur">
-              <p className="text-xs uppercase tracking-[0.18em] text-slate-500">
-                Security
-              </p>
-              <p className="mt-2 text-lg font-semibold text-slate-900">
-                {profile?.authProvider === "GOOGLE" ? "Google login" : "Password login"}
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <div className="grid gap-6 lg:grid-cols-[0.95fr_1.2fr]">
-        <section className="rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm">
-          <p className="text-xs font-medium uppercase tracking-[0.2em] text-slate-500">
-            Account
-          </p>
-          <h2 className="mt-2 text-2xl font-semibold text-slate-900">
-            Identity summary
-          </h2>
-
-          <div className="mt-5 space-y-4">
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
-              <p className="text-xs text-slate-500">Email address</p>
-              <p className="mt-1 text-sm font-medium text-slate-900 break-all">
-                {email ?? "(Email not available)"}
-              </p>
-            </div>
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
-              <p className="text-xs text-slate-500">Recommended action</p>
-              <p className="mt-1 text-sm leading-6 text-slate-700">
-                Update your password periodically and keep your account details
-                consistent with the identity you use for applications.
-              </p>
-            </div>
-          </div>
-        </section>
-
-        <section className="rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm">
-          <div className="flex flex-col gap-2">
-            <p className="text-xs font-medium uppercase tracking-[0.2em] text-slate-500">
-              Security
-            </p>
-            <h2 className="text-2xl font-semibold text-slate-900">
-              Change password
-            </h2>
-            <p className="text-sm text-slate-500">
-              Use a strong password that you are not reusing elsewhere.
-            </p>
-          </div>
-
-          {message && (
-            <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
-              {message}
-            </div>
-          )}
-
-          {profile?.authProvider === "GOOGLE" ? (
-            <div className="mt-5 rounded-2xl border border-sky-200 bg-sky-50 px-4 py-4 text-sm leading-6 text-sky-800">
-              This account uses Google sign-in. Change your password through your Google account.
-            </div>
-          ) : <form onSubmit={handleChangePassword} className="mt-5 max-w-xl space-y-4">
-            <div>
-              <label
-                htmlFor="old-password"
-                className="block text-xs font-medium text-slate-700 mb-1">
-                Old Password
-              </label>
-              <input
-                id="old-password"
-                type={showPasswords ? "text" : "password"}
-                value={oldPassword}
-                onChange={(e) => setOldPassword(e.target.value)}
-                className="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-slate-900"
-                required />
-            </div>
-            <div>
-              <label
-                htmlFor="new-password"
-                className="block text-xs font-medium text-slate-700 mb-1">
-                New Password
-              </label>
-              <input
-                id="new-password"
-                type={showPasswords ? "text" : "password"}
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                className="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-slate-900"
-                required />
-            </div>
-            <div>
-              <label htmlFor="confirm-password" className="mb-1 block text-xs font-medium text-slate-700">
-                Confirm New Password
-              </label>
-              <input
-                id="confirm-password"
-                type={showPasswords ? "text" : "password"}
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                className="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm focus:border-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900"
-                required />
-            </div>
-            <button
-              type="button"
-              onClick={() => setShowPasswords((value) => !value)}
-              className="inline-flex items-center gap-2 text-sm text-slate-600 hover:text-slate-900">
-              {showPasswords ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-              {showPasswords ? "Hide passwords" : "Show passwords"}
-            </button>
-            <button
-              type="submit"
-              disabled={loading}
-              className="inline-flex items-center rounded-full bg-slate-900 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-slate-800 disabled:opacity-60">
-              {loading ? "Changing..." : "Update Password"}
-            </button>
-          </form>}
-        </section>
+    <section className="rounded-xl border border-border bg-surface p-5 shadow-sm sm:p-6">
+      <h2 className="text-lg font-semibold text-foreground">Account</h2>
+      <div className="mt-5 flex flex-col gap-5 sm:flex-row sm:items-center">
+        <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-primary text-xl font-semibold text-primary-foreground">{initial}</div>
+        <div className="min-w-0 flex-1"><p className="text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">Email</p><p className="mt-1 break-all text-base font-medium text-foreground">{email ?? "Email not available"}</p></div>
+        <div className="sm:text-right"><p className="text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">Sign-in method</p><span className="mt-2 inline-flex rounded-full border border-border bg-surface-muted px-2.5 py-1 text-xs font-medium text-foreground">{isGoogleAccount ? "Google" : "Password"}</span></div>
       </div>
-    </main>
-  );
+    </section>
+
+    <section className="rounded-xl border border-border bg-surface p-5 shadow-sm sm:p-6">
+      <h2 className="text-lg font-semibold text-foreground">Change password</h2>
+      {isGoogleAccount ? <p className="mt-4 rounded-lg border border-border bg-surface-muted px-4 py-3 text-sm leading-6 text-muted-foreground">You sign in with Google, so there is no password to change.</p> : <form onSubmit={handleChangePassword} className="mt-5 space-y-4"><PasswordField id="old-password" label="Old password" value={oldPassword} onChange={setOldPassword} visible={Boolean(visibleFields["old-password"])} onToggle={() => toggleField("old-password")} /><PasswordField id="new-password" label="New password" value={newPassword} onChange={setNewPassword} visible={Boolean(visibleFields["new-password"])} onToggle={() => toggleField("new-password")} /><PasswordField id="confirm-password" label="Confirm new password" value={confirmPassword} onChange={setConfirmPassword} visible={Boolean(visibleFields["confirm-password"])} onToggle={() => toggleField("confirm-password")} /><p className="text-xs text-muted-foreground">Use at least 8 characters. A longer password is stronger.</p><div className="flex justify-end pt-2"><button type="submit" disabled={loading} className="inline-flex h-10 items-center gap-2 rounded-md bg-primary px-4 text-sm font-semibold text-primary-foreground transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60">{loading && <LoaderCircle className="h-4 w-4 animate-spin" aria-hidden="true" />}{loading ? "Updating..." : "Update password"}</button></div></form>}
+    </section>
+  </main>;
 };
 
 export default ProfilePage;

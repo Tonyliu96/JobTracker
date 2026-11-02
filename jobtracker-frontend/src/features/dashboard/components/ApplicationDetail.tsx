@@ -9,13 +9,13 @@ interface ApplicationDetailProps {
 type SortField = "companyName" | "jobTitle" | "status" | "appliedDate";
 
 const statusPillClasses: Record<ApplicationStatus, string> = {
-  SAVED: "bg-slate-100 text-slate-700",
-  APPLIED: "bg-sky-100 text-sky-800",
-  OA: "bg-violet-100 text-violet-800",
-  INTERVIEW: "bg-amber-100 text-amber-800",
-  OFFER: "bg-emerald-100 text-emerald-800",
-  REJECTED: "bg-rose-100 text-rose-800",
-  WITHDRAWN: "bg-slate-200 text-slate-700",
+  SAVED: "bg-surface-muted text-muted-foreground",
+  APPLIED: "bg-surface-muted text-foreground",
+  OA: "bg-surface-muted text-foreground",
+  INTERVIEW: "bg-surface-muted text-foreground",
+  OFFER: "bg-surface-muted text-foreground",
+  REJECTED: "bg-surface-muted text-foreground",
+  WITHDRAWN: "bg-surface-muted text-muted-foreground",
 };
 
 const ApplicationDetail: React.FC<ApplicationDetailProps> = ({
@@ -86,39 +86,39 @@ const ApplicationDetail: React.FC<ApplicationDetailProps> = ({
     <div className="space-y-5">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <p className="text-xs font-medium uppercase tracking-[0.2em] text-slate-500">
+          <p className="text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
             Explorer
           </p>
-          <h3 className="mt-1 text-xl font-semibold text-slate-900">
+          <h3 className="mt-1 text-xl font-semibold text-foreground">
             Recent applications
           </h3>
-          <p className="mt-2 text-sm text-slate-500">
+          <p className="mt-2 text-sm text-muted-foreground">
             Review recent records, sort by the signal you care about, and inspect
             a selected role in detail.
           </p>
         </div>
 
         <div className="grid gap-3 sm:grid-cols-2">
-          <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-            <p className="text-xs text-slate-500">Visible range</p>
-            <p className="mt-1 text-lg font-semibold text-slate-900">
+          <div className="rounded-lg border border-border bg-surface-muted px-4 py-3">
+            <p className="text-xs text-muted-foreground">Visible range</p>
+            <p className="mt-1 text-lg font-semibold text-foreground">
               {visibleRangeStart}-{visibleRangeEnd}
             </p>
           </div>
-          <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-            <p className="text-xs text-slate-500">Total records</p>
-            <p className="mt-1 text-lg font-semibold text-slate-900">{sortedApps.length}</p>
+          <div className="rounded-lg border border-border bg-surface-muted px-4 py-3">
+            <p className="text-xs text-muted-foreground">Total records</p>
+            <p className="mt-1 text-lg font-semibold text-foreground">{sortedApps.length}</p>
           </div>
         </div>
       </div>
 
       {sortedApps.length === 0 ? (
-        <div className="rounded-[24px] border border-dashed border-slate-300 bg-slate-50 px-6 py-12 text-center text-sm text-slate-500">
+        <div className="rounded-xl border border-dashed border-border bg-surface-muted px-6 py-12 text-center text-sm text-muted-foreground">
           No recent application records yet.
         </div>
       ) : (
         <>
-          <div className="flex flex-col gap-3 rounded-[24px] border border-slate-200 bg-slate-50 px-4 py-4 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex flex-col gap-3 rounded-xl border border-border bg-surface-muted px-4 py-4 lg:flex-row lg:items-center lg:justify-between">
             <div className="flex flex-wrap gap-2">
               {([
                 ["companyName", "Company"],
@@ -131,8 +131,8 @@ const ApplicationDetail: React.FC<ApplicationDetailProps> = ({
                   type="button"
                   onClick={() => handleSort(field)}
                   className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm transition ${sortField === field
-                      ? "border-slate-900 bg-slate-900 text-white"
-                      : "border-slate-300 bg-white text-slate-600 hover:bg-slate-100"
+                      ? "border-primary bg-primary text-primary-foreground"
+                      : "border-border bg-surface text-muted-foreground hover:bg-surface-muted"
                     }`}
                 >
                   {label}
@@ -141,13 +141,13 @@ const ApplicationDetail: React.FC<ApplicationDetailProps> = ({
               ))}
             </div>
 
-            <div className="flex items-center gap-2 text-sm text-slate-500">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <label htmlFor="rows-per-page">Rows per page</label>
               <select
                 id="rows-per-page"
                 value={pageSize}
                 onChange={(e) => setPageSize(Number(e.target.value))}
-                className="rounded-full border border-slate-300 bg-white px-3 py-1.5 text-sm text-slate-700"
+                className="rounded-md border border-border bg-surface px-3 py-1.5 text-sm text-foreground"
               >
                 <option value={5}>5</option>
                 <option value={10}>10</option>
@@ -158,11 +158,11 @@ const ApplicationDetail: React.FC<ApplicationDetailProps> = ({
           </div>
 
           <div className="grid gap-5 xl:grid-cols-[1.45fr_0.95fr]">
-            <div className="overflow-hidden rounded-[26px] border border-slate-200 bg-white shadow-sm">
+            <div className="overflow-hidden rounded-xl border border-border bg-surface shadow-sm">
               <div className="overflow-x-auto">
                 <table className="min-w-full text-sm">
                   <thead>
-                    <tr className="bg-slate-50 text-xs uppercase tracking-[0.14em] text-slate-500">
+                    <tr className="bg-surface-muted text-xs uppercase tracking-[0.14em] text-muted-foreground">
                       <th className="px-4 py-3 text-left">Company</th>
                       <th className="px-4 py-3 text-left">Role</th>
                       <th className="px-4 py-3 text-left">Stage</th>
@@ -176,16 +176,16 @@ const ApplicationDetail: React.FC<ApplicationDetailProps> = ({
                       return (
                         <tr
                           key={app.id} onClick={() => setSelected(app)}
-                          className={`border-t border-slate-200 transition ${isActive
-                              ? "bg-slate-900 text-white"
+                          className={`border-t border-border transition ${isActive
+                              ? "bg-primary text-primary-foreground"
                               : index % 2 === 0
-                                ? "bg-white hover:bg-slate-50"
-                                : "bg-slate-50/60 hover:bg-slate-100/70"}`}>
+                                ? "bg-surface hover:bg-surface-muted"
+                                : "bg-surface-muted/60 hover:bg-surface-muted"}`}>
                           <td className="px-4 py-4">
                             <div className="font-semibold">{app.companyName}</div>
                             {app.location && (
                               <div
-                                className={`mt-1 text-xs ${isActive ? "text-slate-300" : "text-slate-500"
+                                className={`mt-1 text-xs ${isActive ? "text-primary-foreground/70" : "text-muted-foreground"
                                   }`}
                               >
                                 {app.location}
@@ -193,13 +193,13 @@ const ApplicationDetail: React.FC<ApplicationDetailProps> = ({
                             )}
                           </td>
                           <td className="px-4 py-4">
-                            <div className={`font-medium ${isActive ? "text-white" : "text-slate-900"}`} >
+                            <div className={`font-medium ${isActive ? "text-primary-foreground" : "text-foreground"}`} >
                               {app.jobTitle}
                             </div>
 
                             {app.source && (
                               <div
-                                className={`mt-1 text-xs ${isActive ? "text-slate-300" : "text-slate-500"
+                                className={`mt-1 text-xs ${isActive ? "text-primary-foreground/70" : "text-muted-foreground"
                                   }`}
                               >
                                 via {app.source}
@@ -209,7 +209,7 @@ const ApplicationDetail: React.FC<ApplicationDetailProps> = ({
                           <td className="px-4 py-4">
                             <span
                               className={`inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-medium ${isActive
-                                  ? "bg-white/15 text-white"
+                                  ? "bg-primary-foreground/15 text-primary-foreground"
                                   : statusPillClasses[app.status]
                                 }`}
                             >
@@ -217,7 +217,7 @@ const ApplicationDetail: React.FC<ApplicationDetailProps> = ({
                             </span>
                           </td>
                           <td
-                            className={`px-4 py-4 text-xs ${isActive ? "text-slate-300" : "text-slate-500"
+                            className={`px-4 py-4 text-xs ${isActive ? "text-primary-foreground/70" : "text-muted-foreground"
                               }`}
                           >
                             {app.appliedDate
@@ -232,8 +232,8 @@ const ApplicationDetail: React.FC<ApplicationDetailProps> = ({
               </div>
 
               {totalPages > 1 && (
-                <div className="flex flex-col gap-3 border-t border-slate-200 bg-slate-50 px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
-                  <p className="text-sm text-slate-500">
+                <div className="flex flex-col gap-3 border-t border-border bg-surface-muted px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
+                  <p className="text-sm text-muted-foreground">
                     Page {activePage} of {totalPages}
                   </p>
                   <div className="flex items-center gap-2">
@@ -241,7 +241,7 @@ const ApplicationDetail: React.FC<ApplicationDetailProps> = ({
                       type="button"
                       onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
                       disabled={activePage === 1}
-                      className="rounded-full border border-slate-300 bg-white px-4 py-2 text-sm text-slate-700 disabled:cursor-not-allowed disabled:opacity-50"
+                      className="rounded-md border border-border bg-surface px-4 py-2 text-sm text-foreground disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       Previous
                     </button>
@@ -253,8 +253,8 @@ const ApplicationDetail: React.FC<ApplicationDetailProps> = ({
                           type="button"
                           onClick={() => setCurrentPage(page)}
                           className={`h-9 w-9 rounded-full border text-sm ${activePage === page
-                              ? "border-slate-900 bg-slate-900 text-white"
-                              : "border-slate-300 bg-white text-slate-700 hover:bg-slate-100"
+                              ? "border-primary bg-primary text-primary-foreground"
+                              : "border-border bg-surface text-foreground hover:bg-surface-muted"
                             }`}
                         >
                           {page}
@@ -265,7 +265,7 @@ const ApplicationDetail: React.FC<ApplicationDetailProps> = ({
                       type="button"
                       onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
                       disabled={activePage === totalPages}
-                      className="rounded-full border border-slate-300 bg-white px-4 py-2 text-sm text-slate-700 disabled:cursor-not-allowed disabled:opacity-50"
+                      className="rounded-md border border-border bg-surface px-4 py-2 text-sm text-foreground disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       Next
                     </button>
@@ -274,13 +274,13 @@ const ApplicationDetail: React.FC<ApplicationDetailProps> = ({
               )}
             </div>
 
-            <aside className="rounded-[26px] border border-slate-200 bg-[linear-gradient(180deg,_#ffffff_0%,_#f8fafc_100%)] p-5">
+            <aside className="rounded-xl border border-border bg-surface p-5">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs font-medium uppercase tracking-[0.2em] text-slate-500">
+                  <p className="text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
                     Detail
                   </p>
-                  <h4 className="mt-1 text-lg font-semibold text-slate-900">
+                  <h4 className="mt-1 text-lg font-semibold text-foreground">
                     {selected ? "Selected application" : "No record selected"}
                   </h4>
                 </div>
@@ -288,7 +288,7 @@ const ApplicationDetail: React.FC<ApplicationDetailProps> = ({
                   <button
                     type="button"
                     onClick={() => setSelected(null)}
-                    className="rounded-full border border-slate-300 px-3 py-1.5 text-xs text-slate-600 hover:bg-white"
+                    className="rounded-md border border-border px-3 py-1.5 text-xs text-muted-foreground hover:bg-surface-muted"
                   >
                     Close details
                   </button>
@@ -296,65 +296,65 @@ const ApplicationDetail: React.FC<ApplicationDetailProps> = ({
               </div>
 
               {!selected ? (
-                <div className="mt-8 rounded-[22px] border border-dashed border-slate-300 bg-white px-5 py-10 text-center text-sm text-slate-500">
+                <div className="mt-8 rounded-xl border border-dashed border-border bg-surface-muted px-5 py-10 text-center text-sm text-muted-foreground">
                   Select a role from the table to inspect its details.
                 </div>
               ) : (
                 <div className="mt-5 space-y-4">
-                  <div className="rounded-[22px] bg-slate-900 px-5 py-5 text-white">
-                    <p className="text-xs uppercase tracking-[0.18em] text-slate-300">
+                  <div className="rounded-xl bg-primary px-5 py-5 text-primary-foreground">
+                    <p className="text-xs uppercase tracking-[0.18em] text-primary-foreground/70">
                       {selected.companyName}
                     </p>
                     <h5 className="mt-2 text-2xl font-semibold">{selected.jobTitle}</h5>
-                    <div className="mt-4 inline-flex items-center rounded-full bg-white/10 px-3 py-1 text-xs font-medium">
+                    <div className="mt-4 inline-flex items-center rounded-full bg-primary-foreground/10 px-3 py-1 text-xs font-medium">
                       {statusLabels[selected.status]}
                     </div>
                   </div>
 
                   <div className="grid gap-3 sm:grid-cols-2">
-                    <div className="rounded-2xl bg-white px-4 py-3 shadow-sm ring-1 ring-slate-200">
-                      <p className="text-xs text-slate-500">Applied Date</p>
-                      <p className="mt-1 text-sm font-medium text-slate-900">
+                    <div className="rounded-lg border border-border bg-surface-muted px-4 py-3">
+                      <p className="text-xs text-muted-foreground">Applied Date</p>
+                      <p className="mt-1 text-sm font-medium text-foreground">
                         {selected.appliedDate
                           ? new Date(selected.appliedDate).toLocaleDateString()
                           : "Not set"}
                       </p>
                     </div>
-                    <div className="rounded-2xl bg-white px-4 py-3 shadow-sm ring-1 ring-slate-200">
-                      <p className="text-xs text-slate-500">Created Date</p>
-                      <p className="mt-1 text-sm font-medium text-slate-900">
+                    <div className="rounded-lg border border-border bg-surface-muted px-4 py-3">
+                      <p className="text-xs text-muted-foreground">Created Date</p>
+                      <p className="mt-1 text-sm font-medium text-foreground">
                         {new Date(selected.createdAt).toLocaleString()}
                       </p>
                     </div>
-                    <div className="rounded-2xl bg-white px-4 py-3 shadow-sm ring-1 ring-slate-200">
-                      <p className="text-xs text-slate-500">Last Updated</p>
-                      <p className="mt-1 text-sm font-medium text-slate-900">
+                    <div className="rounded-lg border border-border bg-surface-muted px-4 py-3">
+                      <p className="text-xs text-muted-foreground">Last Updated</p>
+                      <p className="mt-1 text-sm font-medium text-foreground">
                         {new Date(selected.updatedAt).toLocaleString()}
                       </p>
                     </div>
-                    <div className="rounded-2xl bg-white px-4 py-3 shadow-sm ring-1 ring-slate-200">
-                      <p className="text-xs text-slate-500">Location</p>
-                      <p className="mt-1 text-sm font-medium text-slate-900">
+                    <div className="rounded-lg border border-border bg-surface-muted px-4 py-3">
+                      <p className="text-xs text-muted-foreground">Location</p>
+                      <p className="mt-1 text-sm font-medium text-foreground">
                         {selected.location || "Not set"}
                       </p>
                     </div>
-                    <div className="rounded-2xl bg-white px-4 py-3 shadow-sm ring-1 ring-slate-200">
-                      <p className="text-xs text-slate-500">Source</p>
-                      <p className="mt-1 text-sm font-medium text-slate-900">
+                    <div className="rounded-lg border border-border bg-surface-muted px-4 py-3">
+                      <p className="text-xs text-muted-foreground">Source</p>
+                      <p className="mt-1 text-sm font-medium text-foreground">
                         {selected.source || "Not set"}
                       </p>
                     </div>
-                    <div className="rounded-2xl bg-white px-4 py-3 shadow-sm ring-1 ring-slate-200">
-                      <p className="text-xs text-slate-500">Current Stage</p>
-                      <p className="mt-1 text-sm font-medium text-slate-900">
+                    <div className="rounded-lg border border-border bg-surface-muted px-4 py-3">
+                      <p className="text-xs text-muted-foreground">Current Stage</p>
+                      <p className="mt-1 text-sm font-medium text-foreground">
                         {statusLabels[selected.status]}
                       </p>
                     </div>
                   </div>
 
                   {selected.jobUrl && (
-                    <div className="rounded-2xl bg-white px-4 py-4 shadow-sm ring-1 ring-slate-200">
-                      <p className="text-xs text-slate-500">Job Link</p>
+                    <div className="rounded-lg border border-border bg-surface-muted px-4 py-4">
+                      <p className="text-xs text-muted-foreground">Job Link</p>
                       <a
                         href={selected.jobUrl}
                         target="_blank"
@@ -366,9 +366,9 @@ const ApplicationDetail: React.FC<ApplicationDetailProps> = ({
                     </div>
                   )}
 
-                  <div className="rounded-2xl bg-white px-4 py-4 shadow-sm ring-1 ring-slate-200">
-                    <p className="text-xs text-slate-500">Notes</p>
-                    <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-slate-700">
+                  <div className="rounded-lg border border-border bg-surface-muted px-4 py-4">
+                    <p className="text-xs text-muted-foreground">Notes</p>
+                    <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-foreground">
                       {selected.notes || "No notes added yet."}
                     </p>
                   </div>

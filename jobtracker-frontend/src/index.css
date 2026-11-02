@@ -64,29 +64,3 @@ select option {
   background: var(--surface);
   color: var(--foreground);
 }
-
-/* Keep older dashboard/profile utility classes readable while those views are
-   migrated to the same semantic tokens as the application workspace. */
-.dark [class*="bg-white"] {
-  background-color: var(--surface) !important;
-}
-
-.dark [class*="bg-slate-50"],
-.dark [class*="bg-slate-100"] {
-  background-color: var(--surface-muted) !important;
-}
-
-.dark [class*="text-slate-900"],
-.dark [class*="text-slate-800"],
-.dark [class*="text-slate-700"] {
-  color: var(--foreground) !important;
-}
-
-.dark [class*="text-slate-600"],
-.dark [class*="text-slate-500"] {
-  color: var(--muted-foreground) !important;
-}
-
-.dark [class*="border-slate"] {
-  border-color: var(--border) !important;
-}

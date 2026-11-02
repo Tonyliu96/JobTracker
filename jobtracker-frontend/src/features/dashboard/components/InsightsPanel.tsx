@@ -81,29 +81,29 @@ const InsightsPanel: React.FC<InsightsPanelProps> = ({ apps }) => {
   }, [apps, today]);
 
   return (
-    <section className="overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-sm">
-      <div className="border-b border-slate-200 bg-slate-50/80 px-5 py-4">
-        <p className="text-xs font-medium uppercase tracking-[0.2em] text-slate-500">
+    <section className="overflow-hidden rounded-xl border border-border bg-surface shadow-sm">
+      <div className="border-b border-border bg-surface-muted px-5 py-4">
+        <p className="text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
           Insights
         </p>
-        <h2 className="mt-1 text-xl font-semibold text-slate-900">
+        <h2 className="mt-1 text-xl font-semibold text-foreground">
           Signals worth acting on
         </h2>
       </div>
 
       {insights.length === 0 ? (
-        <div className="px-5 py-8 text-sm text-slate-500">Not enough data yet.</div>
+        <div className="px-5 py-8 text-sm text-muted-foreground">Not enough data yet.</div>
       ) : (
         <div className="space-y-3 px-5 py-5">
           {insights.map((insight, index) => (
             <article
               key={`${insight.title}-${index}`}
-              className="rounded-[22px] border border-slate-200 bg-[linear-gradient(180deg,_#ffffff_0%,_#f8fafc_100%)] p-4">
+              className="rounded-xl border border-border bg-surface-muted p-4">
               <div className="flex items-start gap-3">
-                <div className="mt-1 h-2.5 w-2.5 rounded-full bg-slate-900" />
+                <div className="mt-1 h-2.5 w-2.5 rounded-full bg-primary" />
                 <div>
-                  <h3 className="text-sm font-semibold text-slate-900">{insight.title}</h3>
-                  <p className="mt-1 text-sm leading-6 text-slate-600">{insight.body}</p>
+                <h3 className="text-sm font-semibold text-foreground">{insight.title}</h3>
+                  <p className="mt-1 text-sm leading-6 text-muted-foreground">{insight.body}</p>
                 </div>
               </div>
             </article>

@@ -45,19 +45,19 @@ const ApplicationTrend: React.FC<ApplicationTrendProps> = ({ apps }) => {
   );
 
   return (
-    <section className="overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-sm">
-      <div className="border-b border-slate-200 bg-slate-50/80 px-5 py-4">
+    <section className="overflow-hidden rounded-xl border border-border bg-surface shadow-sm">
+      <div className="border-b border-border bg-surface-muted px-5 py-4">
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
-            <p className="text-xs font-medium uppercase tracking-[0.2em] text-slate-500">
+            <p className="text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
               Trend
             </p>
-            <h2 className="mt-1 text-xl font-semibold text-slate-900">
+            <h2 className="mt-1 text-xl font-semibold text-foreground">
               Application momentum
             </h2>
           </div>
 
-          <div className="inline-flex rounded-full border border-slate-200 bg-white p-1">
+          <div className="inline-flex rounded-md border border-border bg-surface p-1">
             {[7, 30].map((value) => (
               <button
                 key={value}
@@ -65,8 +65,8 @@ const ApplicationTrend: React.FC<ApplicationTrendProps> = ({ apps }) => {
                 onClick={() => setRange(value as 7 | 30)}
                 className={`rounded-full px-4 py-1.5 text-xs font-medium transition ${
                   range === value
-                    ? "bg-slate-900 text-white shadow-sm"
-                    : "text-slate-600 hover:bg-slate-100"}`}>
+                    ? "bg-primary text-primary-foreground shadow-sm"
+                    : "text-muted-foreground hover:bg-surface-muted"}`}>
                 {value} days
               </button>
             ))}
@@ -75,24 +75,24 @@ const ApplicationTrend: React.FC<ApplicationTrendProps> = ({ apps }) => {
       </div>
 
       <div className="grid gap-4 px-5 py-5 md:grid-cols-3">
-        <div className="rounded-2xl bg-slate-100 px-4 py-3">
-          <p className="text-xs text-slate-500">Applications in range</p>
-          <p className="mt-1 text-2xl font-semibold text-slate-900">{totalInRange}</p>
+        <div className="rounded-lg bg-surface-muted px-4 py-3">
+          <p className="text-xs text-muted-foreground">Applications in range</p>
+          <p className="mt-1 text-2xl font-semibold text-foreground">{totalInRange}</p>
         </div>
-        <div className="rounded-2xl bg-slate-100 px-4 py-3">
-          <p className="text-xs text-slate-500">Busiest day</p>
-            <p className="mt-1 text-2xl font-semibold text-slate-900">{totalInRange === 0 ? "—" : busiestDay.date}</p>
+        <div className="rounded-lg bg-surface-muted px-4 py-3">
+          <p className="text-xs text-muted-foreground">Busiest day</p>
+            <p className="mt-1 text-2xl font-semibold text-foreground">{totalInRange === 0 ? "—" : busiestDay.date}</p>
         </div>
-        <div className="rounded-2xl bg-slate-100 px-4 py-3">
-          <p className="text-xs text-slate-500">Peak submissions</p>
-          <p className="mt-1 text-2xl font-semibold text-slate-900">{busiestDay.count}</p>
+        <div className="rounded-lg bg-surface-muted px-4 py-3">
+          <p className="text-xs text-muted-foreground">Peak submissions</p>
+          <p className="mt-1 text-2xl font-semibold text-foreground">{busiestDay.count}</p>
         </div>
       </div>
 
       <div className="px-3 pb-4 md:px-5 md:pb-5">
-        <div className="rounded-[24px] bg-[linear-gradient(180deg,_rgba(248,250,252,0.85)_0%,_rgba(255,255,255,1)_100%)] p-3 md:p-4">
+        <div className="rounded-xl bg-surface-muted p-3 md:p-4">
           {totalInRange === 0 ? (
-            <div className="flex h-[280px] items-center justify-center text-sm text-slate-500">
+            <div className="flex h-[280px] items-center justify-center text-sm text-muted-foreground">
               No applications in this period
             </div>
           ) : (

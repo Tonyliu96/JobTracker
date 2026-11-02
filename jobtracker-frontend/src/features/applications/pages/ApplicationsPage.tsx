@@ -11,7 +11,7 @@ type SortField = "appliedDate" | "companyName" | "jobTitle" | "status" | "source
 type SortOrder = "asc" | "desc";
 
 const statusBadgeClasses: Record<JobApplication["status"], string> = {
-  SAVED: "bg-surface-muted text-muted-foreground", APPLIED: "bg-sky-500/15 text-sky-700 dark:text-sky-200", OA: "bg-violet-500/15 text-violet-700 dark:text-violet-200", INTERVIEW: "bg-amber-500/15 text-amber-700 dark:text-amber-200", OFFER: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-200", REJECTED: "bg-rose-500/15 text-rose-700 dark:text-rose-200", WITHDRAWN: "bg-surface-muted text-muted-foreground",
+  SAVED: "bg-surface-muted text-muted-foreground", APPLIED: "bg-surface-muted text-foreground", OA: "bg-surface-muted text-foreground", INTERVIEW: "bg-surface-muted text-foreground", OFFER: "bg-surface-muted text-foreground", REJECTED: "bg-surface-muted text-foreground", WITHDRAWN: "bg-surface-muted text-muted-foreground",
 };
 const highlightStatuses: JobApplication["status"][] = ["APPLIED", "INTERVIEW", "OFFER", "REJECTED"];
 const inputClass = "w-full min-w-0 rounded-md border border-border bg-surface px-3 py-2.5 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/20 disabled:cursor-not-allowed disabled:bg-surface-muted disabled:text-muted-foreground";
@@ -51,9 +51,9 @@ function TooltipButton({
   loading?: boolean;
   tone?: "default" | "delete";
 }) {
-  return <button type="button" title={label} aria-label={ariaLabel} onClick={onClick} disabled={disabled} className={`group relative inline-flex h-8 w-8 items-center justify-center rounded-md text-foreground transition hover:bg-surface-muted disabled:cursor-wait disabled:opacity-60 ${tone === "delete" ? "hover:bg-rose-500/10 hover:text-rose-600 dark:hover:text-rose-300" : "hover:text-primary"}`}>
+  return <button type="button" title={label} aria-label={ariaLabel} onClick={onClick} disabled={disabled} className={`group relative inline-flex h-8 w-8 items-center justify-center rounded-md text-foreground transition hover:bg-surface-muted disabled:cursor-wait disabled:opacity-60 ${tone === "delete" ? "hover:text-foreground" : "hover:text-primary"}`}>
     {loading ? <LoaderCircle className="h-4 w-4 animate-spin" aria-hidden="true" /> : children}
-    <span className="pointer-events-none absolute bottom-full left-1/2 mb-2 -translate-x-1/2 whitespace-nowrap rounded bg-slate-950 px-2 py-1 text-[11px] font-medium text-white opacity-0 shadow-sm transition group-hover:opacity-100 group-focus-visible:opacity-100">{label}</span>
+    <span className="pointer-events-none absolute bottom-full left-1/2 mb-2 -translate-x-1/2 whitespace-nowrap rounded-md border border-border bg-surface px-2 py-1 text-[11px] font-medium text-foreground opacity-0 shadow-sm transition group-hover:opacity-100 group-focus-visible:opacity-100">{label}</span>
   </button>;
 }
 
@@ -123,7 +123,7 @@ const ApplicationsPage: React.FC = () => {
   const handleBoardStatusChange = async (id: number, status: JobApplication["status"]) => { const current = items.find((item) => item.id === id); if (!current || current.status === status) return; try { const updated = await updateApplication(id, { status }); setItems((previous) => previous.map((item) => item.id === id ? updated : item)); toast.success("Application status updated"); } catch (err: unknown) { toast.error(err instanceof Error ? err.message : "Failed to update status"); } };
   const clearFilters = () => { setSearchQuery(""); setStatusFilter("ALL"); setSourceFilter("ALL"); setSortField("appliedDate"); setSortOrder("desc"); };
   const getReminderStatus = (app: JobApplication) => { if (app.reminderEnabled === false) return "Off"; if (app.remindedAt) return "Completed"; if (!app.followUpDate) return "Scheduled"; const today = new Date().toISOString().slice(0, 10); if (app.followUpDate < today) return "Overdue"; if (app.followUpDate === today) return "Due today"; return "Scheduled"; };
-  const reminderStyles: Record<string, string> = { Off: "text-muted-foreground", Completed: "text-emerald-700 dark:text-emerald-300", Overdue: "text-rose-700 dark:text-rose-300", "Due today": "text-amber-700 dark:text-amber-300", Scheduled: "text-sky-700 dark:text-sky-300" };
+  const reminderStyles: Record<string, string> = { Off: "text-muted-foreground", Completed: "text-foreground", Overdue: "text-foreground", "Due today": "text-foreground", Scheduled: "text-foreground" };
   const formatDate = (date?: string | null) => date ? new Date(date).toLocaleDateString() : "Not set";
 
   return <main className="mx-auto max-w-6xl space-y-5 px-4 py-6 lg:px-8">
@@ -145,7 +145,7 @@ const ApplicationsPage: React.FC = () => {
       {(searchQuery || statusFilter !== "ALL" || sourceFilter !== "ALL") && <div className="mt-3 flex items-center justify-between text-xs text-muted-foreground"><span>Showing {visibleItems.length} of {items.length}</span><button type="button" onClick={clearFilters} className="font-medium text-primary hover:underline">Clear filters</button></div>}
     </section>
 
-    {error && <div className="rounded-lg border border-rose-300 bg-rose-50 px-4 py-3 text-sm text-rose-700 dark:bg-rose-950/40 dark:text-rose-200">{error}</div>}
+    {error && <div className="rounded-lg border border-border bg-surface-muted px-4 py-3 text-sm text-foreground">{error}</div>}
     {viewMode === "board" ? <ApplicationBoard items={visibleItems} onStatusChange={handleBoardStatusChange} /> : <section className="overflow-hidden rounded-xl border border-border bg-surface shadow-sm">
       {!isMobile && <div className="overflow-x-auto">
         <table className="w-full table-fixed text-sm">
