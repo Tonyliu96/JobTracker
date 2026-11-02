@@ -55,16 +55,16 @@ public class SecurityConfig {
 
         Arrays.stream(frontendProperties.getOrigin().split(","))
                 .map(String::trim)
+                .map(origin -> origin.replaceAll("/+$", ""))
                 .filter(origin -> !origin.isEmpty())
                 .forEach(config::addAllowedOrigin);
 
-        config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-        config.setAllowedHeaders(Arrays.asList("*"));
-        config.setExposedHeaders(Arrays.asList("Authorization", "Content-Type"));
+        config.setAllowedMethods(Arrays.asList("GET", "POST", "PATCH", "DELETE", "OPTIONS"));
+        config.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
         config.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", config);
+        source.registerCorsConfiguration("/api/**", config);
         return source;
     }
 }

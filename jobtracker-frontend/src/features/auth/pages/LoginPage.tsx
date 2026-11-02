@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { GoogleLogin } from "@react-oauth/google";
 import { AlertCircle, Eye, EyeOff, LoaderCircle } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
@@ -15,8 +15,19 @@ const LoginPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [googleUnavailable, setGoogleUnavailable] = useState(!import.meta.env.VITE_GOOGLE_CLIENT_ID);
+  const googleContainerRef = useRef<HTMLDivElement>(null);
+  const [googleButtonWidth, setGoogleButtonWidth] = useState(400);
   const [darkMode, setDarkMode] = useState(() => document.documentElement.classList.contains("dark"));
   useEffect(() => { const handleThemeChange = (event: Event) => setDarkMode((event as CustomEvent<{ darkMode: boolean }>).detail.darkMode); window.addEventListener("jobtracker-theme-change", handleThemeChange); return () => window.removeEventListener("jobtracker-theme-change", handleThemeChange); }, []);
+  useEffect(() => {
+    const updateGoogleButtonWidth = () => {
+      const containerWidth = googleContainerRef.current?.offsetWidth ?? 400;
+      setGoogleButtonWidth(Math.max(200, Math.min(400, Math.floor(containerWidth))));
+    };
+    updateGoogleButtonWidth();
+    window.addEventListener("resize", updateGoogleButtonWidth);
+    return () => window.removeEventListener("resize", updateGoogleButtonWidth);
+  }, [googleUnavailable]);
   const completeLogin = (data: { token: string; userId: number; email: string }) => { saveAuth(data); navigate("/dashboard", { replace: true }); };
   const errorMessage = (err: unknown, fallback: string) => { const message = err instanceof Error ? err.message : fallback; return message.includes("429") || message.toLowerCase().includes("too many") ? "Too many attempts. Please try again in a minute." : message; };
   const handleSubmit = async (event: React.FormEvent) => { event.preventDefault(); setError(null); setLoading(true); try { completeLogin(await login(email, password)); } catch (err: unknown) { setError(errorMessage(err, "Login failed")); } finally { setLoading(false); } };
@@ -33,7 +44,7 @@ const LoginPage: React.FC = () => {
         <button type="submit" disabled={loading} className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 text-sm font-semibold text-primary-foreground transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-60">{loading && <LoaderCircle className="h-4 w-4 animate-spin" aria-hidden="true" />}{loading ? "Signing in..." : "Login"}</button>
       </form>
       <div className="relative my-6 flex items-center"><div className="w-full border-t border-border" /><span className="absolute left-1/2 -translate-x-1/2 bg-surface px-3 text-xs text-muted-foreground">or</span></div>
-      {googleUnavailable ? <button type="button" disabled className="inline-flex h-11 w-full items-center justify-center rounded-lg border border-border bg-surface-muted px-4 text-sm font-medium text-muted-foreground">Google sign-in unavailable</button> : <div className="flex min-h-11 w-full justify-center overflow-hidden rounded-lg [&>div]:w-full"><GoogleLogin onSuccess={(response) => { if (response.credential) void handleGoogleSuccess(response.credential); }} onError={() => { setError("Google login was cancelled or failed"); setGoogleUnavailable(true); }} useOneTap={false} theme={darkMode ? "filled_black" : "outline"} size="large" text="continue_with" width="100%" /></div>}
+      {googleUnavailable ? <button type="button" disabled className="inline-flex h-11 w-full items-center justify-center rounded-lg border border-border bg-surface-muted px-4 text-sm font-medium text-muted-foreground">Google sign-in unavailable</button> : <div ref={googleContainerRef} className="flex min-h-11 w-full justify-center overflow-hidden rounded-lg [&>div]:w-full"><GoogleLogin key={`${darkMode}-${googleButtonWidth}`} onSuccess={(response) => { if (response.credential) void handleGoogleSuccess(response.credential); }} onError={() => { setError("Google login was cancelled or failed"); setGoogleUnavailable(true); }} useOneTap={false} theme={darkMode ? "filled_black" : "outline"} size="large" text="continue_with" width={String(googleButtonWidth)} /></div>}
       <p className="mt-6 text-center text-sm text-muted-foreground">Don&apos;t have an account? <Link to="/register" className="font-medium text-primary hover:underline">Sign up</Link></p>
     </section>
   </main>;

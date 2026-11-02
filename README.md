@@ -169,9 +169,12 @@ Flyway is configured with `spring.flyway.baseline-on-migrate=true` and `spring.f
 
 ### Render backend variables
 
-- `DB_URL`: private Neon PostgreSQL JDBC URL, including `sslmode=require`
-- `DB_USERNAME`: Neon database username
-- `DB_PASSWORD`: Neon database password
+- `SPRING_DATASOURCE_URL`: private Neon PostgreSQL JDBC URL, including `sslmode=require`
+- `SPRING_DATASOURCE_USERNAME`: Neon database username
+- `SPRING_DATASOURCE_PASSWORD`: Neon database password
+- `SPRING_JPA_HIBERNATE_DDL_AUTO`: use `validate` with Flyway
+- `SPRING_FLYWAY_BASELINE_ON_MIGRATE`: use `true` when the baseline strategy is intended
+- `SPRING_FLYWAY_BASELINE_VERSION`: use `0` for this project baseline
 - `JWT_SECRET`: strong private signing secret, at least 32 characters
 - `GOOGLE_CLIENT_ID`: Google OAuth client ID used by the backend
 - `FRONTEND_ORIGIN`: deployed Vercel frontend origin
@@ -228,8 +231,9 @@ npm test
 ## Author👨🏻‍💻
 # Environment variables
 
-For local or Render deployments, configure `DB_URL`, `DB_USERNAME`, `DB_PASSWORD`,
-`JWT_SECRET`, `GOOGLE_CLIENT_ID`, `FRONTEND_ORIGIN`, `PORT`,
+For local or Render deployments, configure `SPRING_DATASOURCE_URL`,
+`SPRING_DATASOURCE_USERNAME`, `SPRING_DATASOURCE_PASSWORD`, `JWT_SECRET`,
+`GOOGLE_CLIENT_ID`, `FRONTEND_ORIGIN`, `PORT`,
 `NOTIFICATIONS_CRON`, and `NOTIFICATIONS_ZONE`. The JDBC URL must use
 `jdbc:postgresql://...` and Neon connections should include `sslmode=require`.
 
