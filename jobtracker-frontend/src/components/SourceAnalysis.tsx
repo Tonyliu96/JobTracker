@@ -17,13 +17,16 @@ function getDomain(url?: string | null) {
 }
 
 function normalizeSource(source?: string | null, jobUrl?: string | null) {
-  if (source) {
-    const normalizedSource = source.toLowerCase();
+  if (source?.trim()) {
+    const normalizedSource = source.trim().toLowerCase();
 
     if (normalizedSource.includes("linkedin")) return "LinkedIn";
     if (normalizedSource.includes("seek")) return "Seek";
     if (normalizedSource.includes("indeed")) return "Indeed";
     if (normalizedSource.includes("glassdoor")) return "Glassdoor";
+    if (normalizedSource.includes("company site") || normalizedSource.includes("company website")) {
+      return "Company Site";
+    }
   }
 
   const domain = getDomain(jobUrl);
@@ -80,12 +83,12 @@ const SourceAnalysis: React.FC<SourceAnalysisProps> = ({ apps }) => {
       ) : (
         <div className="px-5 py-5">
           <div className="grid gap-3 md:grid-cols-3">
-            {data.slice(0, 3).map((row) => (
+            {data.slice(0, 3).map((row, index) => (
               <div key={row.source} className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-                <p className="text-xs text-slate-500">Top source</p>
+                <p className="text-xs text-slate-500">{index === 0 ? "Top source" : "Source"}</p>
                 <p className="mt-2 text-lg font-semibold text-slate-900">{row.source}</p>
                 <p className="mt-3 text-sm text-slate-600">
-                  {row.interview} responses from {row.total} applications
+                  {row.interview} {row.interview === 1 ? "response" : "responses"} from {row.total} {row.total === 1 ? "application" : "applications"}
                 </p>
                 <p className="mt-2 text-2xl font-semibold text-slate-900">
                   {row.rate.toFixed(1)}%
@@ -119,8 +122,8 @@ const SourceAnalysis: React.FC<SourceAnalysisProps> = ({ apps }) => {
                             className="h-2 rounded-full bg-slate-900"
                             style={{ width: `${Math.min(row.rate, 100)}%` }} />
                         </div>
-                        <span className="w-12 text-right font-medium text-slate-900">
-                          {row.rate.toFixed(1)}%
+                        <span className="w-24 text-right font-medium text-slate-900">
+                          {row.rate.toFixed(1)}%{row.total < 3 ? " · Low sample" : ""}
                         </span>
                       </div>
                     </td>

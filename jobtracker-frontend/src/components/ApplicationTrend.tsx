@@ -81,7 +81,7 @@ const ApplicationTrend: React.FC<ApplicationTrendProps> = ({ apps }) => {
         </div>
         <div className="rounded-2xl bg-slate-100 px-4 py-3">
           <p className="text-xs text-slate-500">Busiest day</p>
-          <p className="mt-1 text-2xl font-semibold text-slate-900">{busiestDay.date}</p>
+            <p className="mt-1 text-2xl font-semibold text-slate-900">{totalInRange === 0 ? "—" : busiestDay.date}</p>
         </div>
         <div className="rounded-2xl bg-slate-100 px-4 py-3">
           <p className="text-xs text-slate-500">Peak submissions</p>
@@ -91,8 +91,13 @@ const ApplicationTrend: React.FC<ApplicationTrendProps> = ({ apps }) => {
 
       <div className="px-3 pb-4 md:px-5 md:pb-5">
         <div className="rounded-[24px] bg-[linear-gradient(180deg,_rgba(248,250,252,0.85)_0%,_rgba(255,255,255,1)_100%)] p-3 md:p-4">
-          <ResponsiveContainer width="100%" height={280}>
-            <LineChart data={trendData} margin={{ top: 8, right: 8, left: -24, bottom: 0 }}>
+          {totalInRange === 0 ? (
+            <div className="flex h-[280px] items-center justify-center text-sm text-slate-500">
+              No applications in this period
+            </div>
+          ) : (
+            <ResponsiveContainer width="100%" height={280}>
+              <LineChart data={trendData} margin={{ top: 8, right: 8, left: -24, bottom: 0 }}>
               <CartesianGrid stroke="#e2e8f0" strokeDasharray="4 4" vertical={false} />
               <XAxis
                 dataKey="date"
@@ -117,8 +122,9 @@ const ApplicationTrend: React.FC<ApplicationTrendProps> = ({ apps }) => {
                 strokeWidth={3}
                 dot={{ r: 4, fill: "#0f172a", stroke: "#ffffff", strokeWidth: 2 }}
                 activeDot={{ r: 6, fill: "#06b6d4", stroke: "#ffffff", strokeWidth: 2 }}/>
-            </LineChart>
-          </ResponsiveContainer>
+              </LineChart>
+            </ResponsiveContainer>
+          )}
         </div>
       </div>
     </section>

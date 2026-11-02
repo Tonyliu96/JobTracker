@@ -59,4 +59,9 @@ public class JobApplicationController {
         return jobApplicationService.getDueFollowUps(currentUserId(auth));
     }
 
+    @PostMapping("/{id}/follow-up-done")
+    public JobApplicationResponse markFollowUpDone(@PathVariable Long id, Authentication auth) {
+        return jobApplicationService.markFollowUpDone(id, currentUserId(auth));
+    }
+
 }

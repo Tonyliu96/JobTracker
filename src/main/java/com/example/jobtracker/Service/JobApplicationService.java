@@ -11,12 +11,15 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class JobApplicationService {
+
+    private static final ZoneId BUSINESS_ZONE = ZoneId.of("Australia/Sydney");
 
     private final ApplicationRepository applicationRepository;
 
@@ -63,7 +66,7 @@ public class JobApplicationService {
 
         if (request.getFollowUpDate() != null) {
             app.setFollowUpDate(request.getFollowUpDate());
-        } else if (reminderEnabled && request.getFollowUpDate() == null) {
+        } else if (reminderEnabled) {
             app.setFollowUpDate(appliedDate.plusDays(7));
         }
 
@@ -72,6 +75,7 @@ public class JobApplicationService {
         app.setRemindeAt(null);
         app.setReminderEnabled(reminderEnabled);
         app.setLastNotifiedAt(null);
+        closeReminderForTerminalStatus(app);
 
         return JobApplicationResponse.fromEntity(applicationRepository.save(app));
     }
@@ -114,9 +118,7 @@ public class JobApplicationService {
         }
 
 
-        if (app.getStatus() == com.example.jobtracker.Entity.ApplicationStatus.OFFER || app.getStatus() == com.example.jobtracker.Entity.ApplicationStatus.REJECTED || app.getStatus() == com.example.jobtracker.Entity.ApplicationStatus.WITHDRAWN) {
-            app.setReminderEnabled(false);
-        }
+        closeReminderForTerminalStatus(app);
 
         return JobApplicationResponse.fromEntity(applicationRepository.save(app));
     }
@@ -137,5 +139,25 @@ public class JobApplicationService {
         return applicationRepository.findDueFollowUpsByUserId(userId, today).stream()
                 .map(JobApplicationResponse::fromEntity)
                 .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public JobApplicationResponse markFollowUpDone(Long id, Long userId) {
+        JobApplication app = applicationRepository.findById(id)
+                .filter(application -> application.getUserId().equals(userId))
+                .orElseThrow(() -> new ResourceNotFoundException("Application not found: " + id));
+
+        app.setRemindeAt(LocalDate.now(BUSINESS_ZONE));
+        app.setLastNotifiedAt(null);
+        app.setUpdatedAt(LocalDateTime.now());
+        return JobApplicationResponse.fromEntity(applicationRepository.save(app));
+    }
+
+    private void closeReminderForTerminalStatus(JobApplication app) {
+        if (app.getStatus() == com.example.jobtracker.Entity.ApplicationStatus.OFFER
+                || app.getStatus() == com.example.jobtracker.Entity.ApplicationStatus.REJECTED
+                || app.getStatus() == com.example.jobtracker.Entity.ApplicationStatus.WITHDRAWN) {
+            app.setReminderEnabled(false);
+        }
     }
 }

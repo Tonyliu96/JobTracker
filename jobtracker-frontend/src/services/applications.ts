@@ -148,4 +148,19 @@ export async function fetchDueFollowUps(): Promise<JobApplication[]> {
     throw new Error("Failed to load due follow-ups");
   }
   return (await res.json()) as JobApplication[];
-} 
+}
+
+export async function markFollowUpDone(id: number): Promise<JobApplication> {
+  const res = await fetch(buildApiUrl(`/applications/${id}/follow-up-done`), {
+    method: "POST",
+    headers: authHeaders(),
+  });
+  if (!res.ok) {
+    if (handleUnauthorized(res.status)) {
+      throw new Error("Unauthorized");
+    }
+    const data = await res.json().catch(() => ({}));
+    throw new Error((data as { error?: string }).error || "Failed to mark follow-up done");
+  }
+  return (await res.json()) as JobApplication;
+}

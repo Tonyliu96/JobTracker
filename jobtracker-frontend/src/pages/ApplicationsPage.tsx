@@ -5,6 +5,7 @@ import {
   createApplication,
   deleteApplication,
   fetchApplications,
+  markFollowUpDone,
   updateApplication,
 } from "../services/applications";
 import type { JobApplication, JobApplicationPayload } from "../services/applications";
@@ -79,6 +80,7 @@ const ApplicationsPage: React.FC = () => {
   const [sourceFilter, setSourceFilter] = useState("ALL");
   const [sortField, setSortField] = useState<SortField>("appliedDate");
   const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
+  const [markingFollowUpId, setMarkingFollowUpId] = useState<number | null>(null);
   const reminderBadgeClasses: Record<string, string> = {
   Off: "bg-slate-100 text-slate-700",
   Completed: "bg-emerald-100 text-emerald-800",
@@ -276,6 +278,19 @@ const ApplicationsPage: React.FC = () => {
       }
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Deletion failed");
+    }
+  };
+
+  const handleMarkFollowUpDone = async (id: number) => {
+    setMarkingFollowUpId(id);
+    setError(null);
+    try {
+      const updated = await markFollowUpDone(id);
+      setItems((prev) => prev.map((item) => (item.id === id ? updated : item)));
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Failed to mark follow-up done");
+    } finally {
+      setMarkingFollowUpId(null);
     }
   };
 
@@ -503,7 +518,20 @@ const ApplicationsPage: React.FC = () => {
                 name="source"
                 value={form.source || ""}
                 onChange={handleChange}
+                list="application-source-options"
                 className="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm" />
+              <datalist id="application-source-options">
+                {[
+                  "LinkedIn",
+                  "Seek",
+                  "Indeed",
+                  "Company site",
+                  "Referral",
+                  ...sourceOptions,
+                ].filter((source, index, options) => options.indexOf(source) === index).map((source) => (
+                  <option key={source} value={source} />
+                ))}
+              </datalist>
             </div>
             <div>
               <label htmlFor="application-status" className="block text-xs font-medium text-slate-700 mb-1">
@@ -689,6 +717,7 @@ const ApplicationsPage: React.FC = () => {
                 <div>
                   <button
                     type="button"
+                    aria-label={sortOrder === "asc" ? "Asc" : "Desc"}
                     onClick={() =>
                       setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"))}
                     className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-700 hover:bg-slate-100">
@@ -752,10 +781,21 @@ const ApplicationsPage: React.FC = () => {
                         {formatFollowUpDate(app)}
                       </td>
                       <td className="px-4 py-4">
-                        <span
-                          className={`inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-medium ${reminderBadgeClasses[getReminderStatus(app)]}`}>
-                          {getReminderStatus(app)}
-                        </span>
+                        <div className="flex flex-col items-start gap-2">
+                          <span
+                            className={`inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-medium ${reminderBadgeClasses[getReminderStatus(app)]}`}>
+                            {getReminderStatus(app)}
+                          </span>
+                          {(getReminderStatus(app) === "Due today" || getReminderStatus(app) === "Overdue") && (
+                            <button
+                              type="button"
+                              onClick={() => void handleMarkFollowUpDone(app.id)}
+                              disabled={markingFollowUpId === app.id}
+                              className="rounded-full border border-emerald-200 px-3 py-1.5 text-xs text-emerald-700 hover:bg-emerald-50 disabled:cursor-not-allowed disabled:opacity-60">
+                              {markingFollowUpId === app.id ? "Updating..." : "Mark followed up"}
+                            </button>
+                          )}
+                        </div>
                       </td>
                       <td className="px-4 py-4 text-right">
                         <div className="inline-flex items-center gap-2">
