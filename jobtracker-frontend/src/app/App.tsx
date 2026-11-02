@@ -7,6 +7,8 @@ import RegisterPage from "../features/auth/pages/RegisterPage";
 import { clearAuth, getEmail, getToken } from "../features/auth/api/auth";
 import { fetchNotifications, markNotificationAsRead, fetchUnreadCount, type NotificationItem } from "../features/notifications/api/notification";
 import { useEffect, useRef, useState } from "react";
+import { Bell, Moon, Sun } from "lucide-react";
+import { Toaster } from "sonner";
 
 function ProtectedRoute() {
   if (!getToken()) {
@@ -33,6 +35,7 @@ function ProtectedLayout() {
   const [notificationsError, setNotificationsError] = useState<string | null>(null);
   const [unreadCount, setUnreadCount] = useState(0);
   const [markingReadIds, setMarkingReadIds] = useState<number[]>([]);
+  const [darkMode, setDarkMode] = useState(() => localStorage.getItem("jobtracker_theme") === "dark");
   const notificationsRef = useRef<HTMLDivElement | null>(null);
 
 
@@ -69,6 +72,21 @@ function ProtectedLayout() {
   // useEffect(() => {
   //   void loadUnreadCount();
   // }, []);
+
+  useEffect(() => {
+    document.documentElement.classList.toggle("dark", darkMode);
+    localStorage.setItem("jobtracker_theme", darkMode ? "dark" : "light");
+  }, [darkMode]);
+
+  useEffect(() => {
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setNotificationsOpen(false);
+      }
+    };
+    document.addEventListener("keydown", handleEscape);
+    return () => document.removeEventListener("keydown", handleEscape);
+  }, []);
 
   useEffect(() => {
     void loadUnreadCount();
@@ -149,8 +167,8 @@ function ProtectedLayout() {
     }`;
 
   return (
-    <div className="min-h-screen bg-slate-100">
-      <nav className="sticky top-0 z-20 border-b border-slate-200 bg-white/90 backdrop-blur">
+    <div className="min-h-screen bg-slate-100 dark:bg-slate-950">
+      <nav className="sticky top-0 z-20 border-b border-slate-200 bg-white/90 backdrop-blur dark:border-slate-800 dark:bg-slate-900/90">
         <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-4 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
             <div className="flex items-center gap-3">
@@ -176,7 +194,7 @@ function ProtectedLayout() {
             </div>
           </div>
 
-          <div className="flex items-center justify-between gap-3 rounded-[22px] border border-slate-200 bg-slate-50 px-3 py-2">
+          <div className="flex items-center justify-between gap-3 rounded-[22px] border border-slate-200 bg-slate-50 px-3 py-2 dark:border-slate-700 dark:bg-slate-900">
             <div className="min-w-0">
               <p className="text-[11px] uppercase tracking-[0.18em] text-slate-500">
                 Signed in
@@ -192,18 +210,7 @@ function ProtectedLayout() {
                 onClick={() => void handleToggleNotifications()}
                 className="relative inline-flex items-center justify-center rounded-full border border-slate-300 bg-white p-3 text-slate-700 transition hover:bg-slate-100">
                 <span className="sr-only">Open notifications</span>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.8"
-                  className="h-5 w-5">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M14.857 17H9.143m9.429 0H18a2 2 0 0 1-2-2v-3.586a1 1 0 0 0-.293-.707l-.414-.414A2 2 0 0 1 14.707 8.88V8a2.707 2.707 0 1 0-5.414 0v.88a2 2 0 0 1-.586 1.414l-.414.414A1 1 0 0 0 8 11.414V15a2 2 0 0 1-2 2h-.571m13.142 0H5.429" />
-                </svg>
+                <Bell className="h-5 w-5" aria-hidden="true" />
 
                 {unreadCount > 0 && (
                   <span className="absolute -right-1 -top-1 inline-flex min-w-[20px] items-center justify-center rounded-full bg-rose-500 px-1.5 py-0.5 text-[11px] font-semibold text-white">
@@ -284,6 +291,14 @@ function ProtectedLayout() {
 
             <button
               type="button"
+              aria-label={darkMode ? "Use light mode" : "Use dark mode"}
+              onClick={() => setDarkMode((value) => !value)}
+              className="inline-flex items-center justify-center rounded-full border border-slate-300 bg-white p-2.5 text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700">
+              {darkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+            </button>
+
+            <button
+              type="button"
               onClick={handleLogout}
               className="inline-flex items-center rounded-full border border-slate-300 bg-white px-4 py-2 text-sm text-slate-700 transition hover:bg-slate-100">
               Logout
@@ -301,7 +316,9 @@ function ProtectedLayout() {
 
 function App() {
   return (
-    <Routes>
+    <>
+      <Toaster position="top-right" richColors />
+      <Routes>
       <Route
         path="/"
         element={<Navigate to={getToken() ? "/dashboard" : "/login"} replace />} />
@@ -322,7 +339,8 @@ function App() {
       <Route
         path="*"
         element={<Navigate to={getToken() ? "/dashboard" : "/login"} replace />} />
-    </Routes>
+      </Routes>
+    </>
   );
 }
 

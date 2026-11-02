@@ -6,6 +6,12 @@ export interface AuthResponse {
   email: string;
 }
 
+export interface UserProfile {
+  id: number;
+  email: string;
+  authProvider: "PASSWORD" | "GOOGLE";
+}
+
 export async function login(
   email: string,
   password: string,
@@ -81,6 +87,20 @@ export function getToken(): string | null {
 
 export function getEmail(): string | null {
   return localStorage.getItem("jobtracker_email");
+}
+
+export async function getProfile(): Promise<UserProfile> {
+  const token = getToken();
+  if (!token) throw new Error("No auth token");
+  const res = await fetch(buildApiUrl("/auth/me"), {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) {
+    if (handleUnauthorized(res.status)) throw new Error("Unauthorized");
+    const data = (await res.json().catch(() => ({}))) as { error?: string };
+    throw new Error(data.error || "Failed to load profile");
+  }
+  return (await res.json()) as UserProfile;
 }
 
 export async function changePassword(

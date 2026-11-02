@@ -1,15 +1,21 @@
 import React, { useEffect, useState } from "react";
-import { changePassword, getEmail } from "../../auth/api/auth";
+import { changePassword, getEmail, getProfile, type UserProfile } from "../../auth/api/auth";
+import { Eye, EyeOff } from "lucide-react";
+import { toast } from "sonner";
 
 const ProfilePage: React.FC = () => {
   const [email, setEmail] = useState<string | null>(null);
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPasswords, setShowPasswords] = useState(false);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
 
   useEffect(() => {
     setEmail(getEmail());
+    void getProfile().then(setProfile).catch(() => undefined);
   }, []);
 
   const handleChangePassword = async (e: React.FormEvent) => {
@@ -18,12 +24,19 @@ const ProfilePage: React.FC = () => {
     setLoading(true);
 
     try {
+      if (newPassword !== confirmPassword) {
+        throw new Error("New passwords do not match");
+      }
       await changePassword(oldPassword, newPassword);
       setMessage("Password updated successfully");
+      toast.success("Password updated");
       setOldPassword("");
       setNewPassword("");
+      setConfirmPassword("");
     } catch (err: unknown) {
-      setMessage(err instanceof Error ? err.message : "Failed to change password");
+      const errorMessage = err instanceof Error ? err.message : "Failed to change password";
+      setMessage(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -68,7 +81,9 @@ const ProfilePage: React.FC = () => {
               <p className="text-xs uppercase tracking-[0.18em] text-slate-500">
                 Security
               </p>
-              <p className="mt-2 text-lg font-semibold text-slate-900">Password login</p>
+              <p className="mt-2 text-lg font-semibold text-slate-900">
+                {profile?.authProvider === "GOOGLE" ? "Google login" : "Password login"}
+              </p>
             </div>
           </div>
         </div>
@@ -119,7 +134,11 @@ const ProfilePage: React.FC = () => {
             </div>
           )}
 
-          <form onSubmit={handleChangePassword} className="mt-5 space-y-4 max-w-xl">
+          {profile?.authProvider === "GOOGLE" ? (
+            <div className="mt-5 rounded-2xl border border-sky-200 bg-sky-50 px-4 py-4 text-sm leading-6 text-sky-800">
+              This account uses Google sign-in. Change your password through your Google account.
+            </div>
+          ) : <form onSubmit={handleChangePassword} className="mt-5 max-w-xl space-y-4">
             <div>
               <label
                 htmlFor="old-password"
@@ -128,11 +147,11 @@ const ProfilePage: React.FC = () => {
               </label>
               <input
                 id="old-password"
-                type="password"
+                type={showPasswords ? "text" : "password"}
                 value={oldPassword}
                 onChange={(e) => setOldPassword(e.target.value)}
                 className="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-slate-900"
-                required/>
+                required />
             </div>
             <div>
               <label
@@ -142,19 +161,38 @@ const ProfilePage: React.FC = () => {
               </label>
               <input
                 id="new-password"
-                type="password"
+                type={showPasswords ? "text" : "password"}
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 className="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-slate-900"
-                required/>
+                required />
             </div>
+            <div>
+              <label htmlFor="confirm-password" className="mb-1 block text-xs font-medium text-slate-700">
+                Confirm New Password
+              </label>
+              <input
+                id="confirm-password"
+                type={showPasswords ? "text" : "password"}
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm focus:border-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900"
+                required />
+            </div>
+            <button
+              type="button"
+              onClick={() => setShowPasswords((value) => !value)}
+              className="inline-flex items-center gap-2 text-sm text-slate-600 hover:text-slate-900">
+              {showPasswords ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              {showPasswords ? "Hide passwords" : "Show passwords"}
+            </button>
             <button
               type="submit"
               disabled={loading}
               className="inline-flex items-center rounded-full bg-slate-900 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-slate-800 disabled:opacity-60">
               {loading ? "Changing..." : "Update Password"}
             </button>
-          </form>
+          </form>}
         </section>
       </div>
     </main>

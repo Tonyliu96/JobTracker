@@ -9,6 +9,9 @@ import {
   updateApplication,
 } from "../api/applications";
 import type { JobApplication, JobApplicationPayload } from "../api/applications";
+import { DndContext, type DragEndEvent, useDraggable, useDroppable } from "@dnd-kit/core";
+import { CSS } from "@dnd-kit/utilities";
+import { toast } from "sonner";
 
 const emptyPayload: JobApplicationPayload = {
   companyName: "",
@@ -50,6 +53,66 @@ const highlightStatuses: JobApplication["status"][] = [
   "REJECTED",
 ];
 
+function BoardCard({ app }: { app: JobApplication }) {
+  const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
+    id: String(app.id),
+    data: { applicationId: app.id },
+  });
+  return (
+    <article
+      ref={setNodeRef}
+      {...listeners}
+      {...attributes}
+      style={{ transform: CSS.Translate.toString(transform) }}
+      className={`cursor-grab rounded-2xl border border-slate-200 bg-white p-4 shadow-sm active:cursor-grabbing ${isDragging ? "opacity-50" : ""}`}>
+      <p className="font-semibold text-slate-900">{app.companyName}</p>
+      <p className="mt-1 text-sm text-slate-600">{app.jobTitle}</p>
+      <p className="mt-3 text-xs text-slate-500">{app.source || "Source not set"}</p>
+    </article>
+  );
+}
+
+function ApplicationBoard({
+  items,
+  onStatusChange,
+}: {
+  items: JobApplication[];
+  onStatusChange: (id: number, status: JobApplication["status"]) => void;
+}) {
+  const handleDragEnd = ({ active, over }: DragEndEvent) => {
+    if (!over) return;
+    const nextStatus = over.id as JobApplication["status"];
+    if (APPLICATION_STATUSES.includes(nextStatus)) {
+      onStatusChange(Number(active.id), nextStatus);
+    }
+  };
+
+  return (
+    <DndContext onDragEnd={handleDragEnd}>
+      <div className="grid gap-4 overflow-x-auto pb-2 md:grid-cols-4">
+        {APPLICATION_STATUSES.map((status) => (
+          <BoardColumn key={status} status={status} items={items.filter((item) => item.status === status)} />
+        ))}
+      </div>
+    </DndContext>
+  );
+}
+
+function BoardColumn({ status, items }: { status: JobApplication["status"]; items: JobApplication[] }) {
+  const { isOver, setNodeRef } = useDroppable({ id: status });
+  return (
+    <section ref={setNodeRef} className={`min-w-[220px] rounded-2xl p-3 ${isOver ? "bg-sky-50" : "bg-slate-50"}`}>
+      <div className="mb-3 flex items-center justify-between">
+        <h3 className="text-sm font-semibold text-slate-800">{APPLICATION_STATUS_LABELS[status]}</h3>
+        <span className="text-xs text-slate-500">{items.length}</span>
+      </div>
+      <div className="space-y-3">
+        {items.map((item) => <BoardCard key={item.id} app={item} />)}
+      </div>
+    </section>
+  );
+}
+
 function inferSourceFromUrl(jobUrl?: string): string {
   if (!jobUrl?.trim()) return "";
 
@@ -81,6 +144,7 @@ const ApplicationsPage: React.FC = () => {
   const [sortField, setSortField] = useState<SortField>("appliedDate");
   const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
   const [markingFollowUpId, setMarkingFollowUpId] = useState<number | null>(null);
+  const [viewMode, setViewMode] = useState<"table" | "board">("table");
   const reminderBadgeClasses: Record<string, string> = {
   Off: "bg-slate-100 text-slate-700",
   Completed: "bg-emerald-100 text-emerald-800",
@@ -291,6 +355,18 @@ const ApplicationsPage: React.FC = () => {
       setError(err instanceof Error ? err.message : "Failed to mark follow-up done");
     } finally {
       setMarkingFollowUpId(null);
+    }
+  };
+
+  const handleBoardStatusChange = async (id: number, status: JobApplication["status"]) => {
+    const current = items.find((item) => item.id === id);
+    if (!current || current.status === status) return;
+    try {
+      const updated = await updateApplication(id, { status });
+      setItems((prev) => prev.map((item) => item.id === id ? updated : item));
+      toast.success("Application status updated");
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Failed to update status");
     }
   };
 
@@ -731,7 +807,18 @@ const ApplicationsPage: React.FC = () => {
             </div>
           </div>
 
-          <div className="mt-5 overflow-hidden rounded-[24px] border border-slate-200">
+          <div className="mt-5 flex items-center justify-end gap-2">
+            <button type="button" onClick={() => setViewMode("table")} className={`rounded-full px-4 py-2 text-sm ${viewMode === "table" ? "bg-slate-900 text-white" : "border border-slate-300 text-slate-600"}`}>Table</button>
+            <button type="button" onClick={() => setViewMode("board")} className={`rounded-full px-4 py-2 text-sm ${viewMode === "board" ? "bg-slate-900 text-white" : "border border-slate-300 text-slate-600"}`}>Board</button>
+          </div>
+
+          {viewMode === "board" && (
+            <div className="mt-5">
+              <ApplicationBoard items={visibleItems} onStatusChange={handleBoardStatusChange} />
+            </div>
+          )}
+
+          <div className={`mt-5 overflow-hidden rounded-[24px] border border-slate-200 ${viewMode === "board" ? "hidden" : ""}`}>
             {loading ? (
               <div className="px-5 py-8 text-sm text-slate-500">Loading...</div>
             ) : visibleItems.length === 0 ? (
